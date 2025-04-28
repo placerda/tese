@@ -26,3 +26,4 @@
 # Directories
 _build/
 output/
+.local/
