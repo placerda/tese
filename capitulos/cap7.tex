@@ -1,0 +1,73 @@
+\chapter{Planejamento da Pesquisa} \label{cap:cap_planejamento}
+
+
+\section{Resultados Esperados}\label{sec:cap_planejamento_resultados}
+
+O resultado principal esperado com a pesquisa é o desenvolvimento de um novo método para apoiar o diagnóstico de COVID-19 e potencialmente de outras doenças pulmonares, utilizando técnicas de aprendizado profundo e imagens de tomografia computadorizada de tórax. 
+
+Após a conclusão da pesquisa, os produtos gerados incluindo a descrição da técnica, e as redes neurais serão disponibilizados para a comunidade acadêmica com a finalidade de possibilitar a evolução e experimentação em novas pesquisas.
+
+As técnicas a serem desenvolvidas durante o trabalho terão potencial para serem evoluídas, por exemplo, em uma continuação da pesquisa no qual as técnicas propostas podem ser adaptadas e testadas para o apoio ao diagnóstico de outras doenças pulmonares também de grande impacto mundial como, por exemplo, a tuberculose. 
+
+\section{Previsão de Metas de Produção Acadêmica e Científica }\label{sec:cap_planejamento_metas}
+
+Durante o desenvolvimento do trabalho é esperado a produção de artigos em pelo menos um periódico de relevância na área de análise de imagens médicas, como por exemplo: Medical Image Analysis, IEEE Transactions on Medical Imaging e IEEE Transactions on Biomedical Engineering. Até o momento atual da pesquisa já foram publicados alguns artigos em periódicos e conferências: \cite{Lacerda2020AGrowing}, \cite{lacerda2021hyperparameter} e \cite{barros2021pulmonary}.
+
+Para atingir o maior alcance, o resultado deste trabalho de pesquisa será publicado preferencialmente em um periódico de acesso aberto, apresentando a descrição da técnica proposta. Também serão disponibilizados para \textit{download} os códigos fontes e redes desenvolvidas durante o trabalho.
+
+Ao final da pesquisa será produzida uma Tese relatando em mais detalhes as hipóteses, técnicas, experimentos e resultados obtidos com o desenvolvimento do trabalho.
+
+\section{Plano de Trabalho}\label{sec:cap_planejamento_plano}
+
+Após esta proposta de tese, algumas atividades estão planejadas até a defesa. O planejamento destas atividades estão relacionadas na Tabela \ref{table:planejamento_atividades}.
+
+% Durante os experimentos iniciais realizados previamente a defesa da proposta de tese, foi utilizado o conjunto de dados Mosmed-test para a validação externa do método. Este conjunto de dados tem como vantagem ter sido adquirido a partir da mesma instituição, seguindo o mesmo procedimento, apenas em momentos distintos, o que traz um bom controle com relação a procedência e método de aquisição. No entanto o Mosmed-test apresenta uma amostra pequena de casos de COVID-19 (32), com base nisso, com objetivo que o resultado do método proposto tenha significância estatística, durante o desenvolvimento da pesquisa novos conjuntos de dados para validação externa serão considerados, inclusive dando preferencia a conjuntos de dados contemplando imagens oriundas de diferentes geografias e características demográficas dos pacientes.
+
+
+
+
+A validação externa (Atividade 1) é um elemento importante para aumentar a probabilidade de modelos serem utilizados e integrados em futuros ensaios clínicos através de uma validação técnica independente e demonstração de um boa relação de custo-efetividade \cite{roberts2021common}. Para a validação externa das redes criadas ao final da experimentação, será considerado o Mosmed-test, um conjunto de dados da mesma origem que o Mosmed-1110, porém com composição diferente descrita a seguir. 
+
+O Mosmed-test, descrito com mais detalhes em \cite{goncharov2021ct} e disponível na seção Mosmed-test no endereço \href{https://github.com/neuro-ml/COVID-19-Triage}{https://github.com/neuro-ml/COVID-19-Triage} é composto de  32 exames com sintomas visuais de COVID-19 coletados no mesmo sistema de saúde, seis meses após a coleta dos exames do Mosmed-1110, mantendo os dados de validação externa no mesmo domínio dos dados de treinamento e sem interseção entre os dois conjuntos de dados. 
+
+Além dos 32 exames com COVID-19, o Mosmed-test ainda apresenta 30 exames com sinais de pneumonia bacteriana adquiridos antes da pandemia da COVID-19, mais 30 exames com casos de nódulos pulmonares e por fim 31 exames controle, ou seja, sem nódulos e sintomas de pneumonia ou outras doenças pulmonares. No total o conjunto de dados Mosmed-test apresenta 123 exames divididos em quatro classes, conforme descrito na tabela Tabela \ref{table:composicao_mosmed_test}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Quantidade de exames por classe no Mosmed-test}
+\label{table:composicao_mosmed_test}
+\begin{tabular}{@{}llll@{}}
+\toprule
+COVID-19 & Pneumonia Bacteriana & Nódulos Pulmonares & Normal \\ \midrule
+32       & 30                   & 30                 & 31     \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% O objetivo da rede neural treinada pelo método proposto é detectar a COVID-19 a partir de um exame de imagem de tomografia de tórax, portanto os 91 exames do Mosmed-test que não são da classe COVID-19 são considerados como não COVID-19, e os 32 restantes rotulados como membros classe COVID-19, a validação externa com o Mosmed-test que apresenta casos de outras patologias proporcionará uma análise interessante do desempenho do método frente a presença de lesões pulmonares decorrentes de outras patologias.
+
+Um requisito importante para utilizar redes neurais em sistemas de apoio a decisão clinica com inteligência artificial é a capacidade do sistema explicar suas decisões. Durante o trabalho de pesquisa serão aplicadas técnicas de explicabilidade (Atividade 2), como LIME \cite{ribeiro2016should} e Grad-CAM \cite{selvaraju2017grad} no intuito de esclarecer as características relevantes para as predições das redes neurais estudadas e propostas durante o trabalho de pesquisa.
+
+Com objetivo de avaliar o método proposto com tipos de redes mais modernas e concebidas para trabalhar com dados sequencias, serão realizados testes com redes do tipo transformers no lugar da rede LSTM. Alguns trabalhos existentes aplicaram com sucesso \textit{Visual Transformers} \cite{dosovitskiy2020image} para classificar imagens de Raio-X e Tomografia de Tórax de casos de COVID-19 \cite{shamshad2022transformers}, despertando o interesse em também verificar o desempenho da técnica proposta nesta tese quando utilizado os \textit{transformers} ao invés da rede LSTM.
+
+Considerando que a técnica proposta apresentará bom desempenho ao classificar exames de tomografia com casos de COVID-19, será testada também durante o desenvolvimento da pesquisa a capacidade da técnica ser aplicada em outros tipos de doenças pulmonares que apresentem achados em exames de tomografia de tórax (Atividade 4), como a tuberculose e pneumonias bacterianas.
+
+Ao final do trabalho será escrita uma Tese (Atividade 5) relatando em mais detalhes as hipóteses, técnicas, experimentos e resultados obtidos com a pesquisa, e também a publicação (Atividade 6) de pelo menos um artigo em um periódico de relevância na área de análise de imagens médicas, como por exemplo: Medical Image Analysis, IEEE Transactions on Medical Imaging e IEEE Transactions on Biomedical Engineering.
+
+\begin{table}[]
+\centering
+\caption{Plano de trabalho}
+\label{table:planejamento_atividades}
+\begin{tabular}{llcl}
+\hline
+\# & Atividade                                                                       & \multicolumn{1}{l}{Semestre 1} & Semestre 2            \\ \hline
+1 & Realizar análise do método com validação externa.                              & X                              &                       \\
+2 & Aplicar técnicas de explicabilidade.                         & X                              &                       \\
+3 & Realizar experimentos com \textit{transformers}.                 & X                              &                       \\
+4 & Testar a técnica com outras patologias pulmonares.                              & X                              &                       \\
+5 & Escrita da tese.                                                                & \multicolumn{1}{l}{}           & \multicolumn{1}{c}{X} \\
+6 & Elaboração de artigo para periódicos da área.             & \multicolumn{1}{l}{}           & \multicolumn{1}{c}{X} \\
+7 & Defesa da tese.                                                                 & \multicolumn{1}{l}{}           & \multicolumn{1}{c}{X} \\ \hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,235 @@
+\chapter{Fundamentação Teórica} \label{cap:cap_fundamentos}
+
+Neste capítulo são apresentados de forma resumida os fundamentos que formam a base desta pesquisa: o aprendizado profundo e os tipos de rede neurais aplicados neste trabalho, assim como informações gerais sobre a COVID-19 e os achados típicos encontrados nos exames de imagem de tomografia de tórax de pacientes com esta doença.
+
+Na seção a seguir sobre aprendizado profundo o objetivo é  expor ao leitor os conceitos gerais sobre cada um dos temas apresentados, porém para um conteúdo mais abrangente sobre os temas recomenda-se duas publicações sobre o tema aprendizado profundo: \cite{goodfellow2016deep} e \cite{zhang2020dive}.
+
+\section{Aprendizado Profundo}\label{section:cap_fundamentos_dl}
+
+O aprendizado profundo \cite{goodfellow2016deep} é um tipo de aprendizado de máquina que obtém grande poder e flexibilidade ao representar o conhecimento como uma hierarquia de conceitos aninhados, com cada conceito definido em relação a conceitos mais simples.
+
+Para ilustrar a ideia, a Figura \ref{fig:fun_modelo_aprendizado_profundo} apresenta um modelo de aprendizado profundo com ênfase em imagens. Conforme a ilustração, o aprendizado profundo é capaz de representar conceitos mais abstratos como um cachorro, dividindo o conceito em uma série de conceitos mais simples, cada um descrito por uma camada diferente do modelo. 
+
+É importante comentar que para ter aplicação prática uma rede neural apresentaria mais camadas do que exibido na Figura \ref{fig:fun_modelo_aprendizado_profundo}, um exemplo simplificado apenas para fins ilustrativos. 
+
+Os dados de entrada são transmitidos para a camada de entrada, a camada observável, pois contém as variáveis visíveis de entrada do modelo. No exemplo da Figura \ref{fig:fun_modelo_aprendizado_profundo} a camada visível recebe como entrada as intensidades dos \textit{pixels} da imagem.
+
+Em seguida, uma série de camadas ocultas extraem características cada vez mais abstratas da imagem. Essas camadas são chamadas de “ocultas”, pois têm uma resposta não observável, mas sim latente e a saída de cada camada deve determinar quais conceitos são úteis para explicar os relacionamentos nos dados que recebeu de entrada.
+
+Ainda no exemplo da Figura \ref{fig:fun_modelo_aprendizado_profundo}, na primeira camada oculta, a partir dos \textit{pixels} da imagem de entrada, são determinadas as bordas presentes na imagem, comparando o brilho dos \textit{pixels} vizinhos. A partir das bordas representadas pela primeira camada oculta, a segunda camada oculta determina cantos e contornos, identificados a partir da combinação das arestas. 
+
+Com base na representação da imagem da segunda camada oculta, em termos de cantos e contornos, a terceira camada oculta é capaz de representar partes de objetos específicos, que correspondem a combinações particulares de contornos e cantos. 
+
+Finalmente, esta descrição da imagem em termos das partes do objeto que ela contém, pode ser usada para classificar a imagem. 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/fun_modelo_aprendizado_profundo.pdf}
+\caption{Um modelo de aprendizado profundo.}
+\label{fig:fun_modelo_aprendizado_profundo}
+\end{figure}
+
+Embora não exista um consenso sobre quanta "profundidade" um modelo requer para se qualificar como “profundo”, o aprendizado profundo pode ser considerado como o estudo de modelos que envolvem uma quantidade maior de composição de funções ou conceitos aprendidos do que o aprendizado de máquina tradicional.
+
+Uma rede neural é um modelo inspirado no cérebro, composto por camadas formadas por neurônios. Os modelos de aprendizado profundo são redes neurais contendo múltiplas camadas ocultas, também chamadas de redes neurais profundas. 
+
+Com o propósito de facilitar a leitura e padronizar a nomenclatura utilizada no texto, daqui em diante será utilizado simplesmente o termo rede neural para se referir a modelos de aprendizado profundo.
+
+Nas próximas subseções são apresentados os quatro tipos de redes neurais utilizadas nesta pesquisa, assim como a técnica de otimização de hiperparâmetros de redes neurais.
+
+\subsection{Perceptron Multicamadas}\label{subsec:cap_fundamentos_ann}
+
+As redes Perceptron Multicamadas (PMC) são uma forma clássica de rede neural, elas têm esse nome pois seus neurônios são inspirados na Perceptron\cite{rosenblatt:58}, uma forma simples de rede neural com um único neurônio.
+
+Uma PMC tem sua estrutura formada por uma camada de entrada, uma de saída e entre elas, uma ou mais camadas ocultas. Cada camada apresenta um conjunto de unidades lógicas, no caso das camadas ocultas estas unidades são os neurônios da rede.
+
+A camada de entrada apresenta um número de unidades de entrada, cada uma delas recebe as características do item que se deseja processar na rede. Em uma rede voltada para classificar um paciente de acordo com uma doença, por exemplo, a camada de entrada pode receber como entrada um vetor contendo características como a idade do paciente, o sexo e assim por diante.
+
+A camada de saída apresenta unidades cuja quantidade é definida pelo problema que a rede resolve, por exemplo, no caso de uma classificação multi-classe é utilizada uma saída para cada uma das classes que a rede conhece.
+
+As camadas ocultas têm esse nome, pois ficam "escondidas" entre a camada de entrada e a de saída, cada camada oculta é formada por um conjunto de neurônios e cada um deles recebe como entrada a saída de cada unidade da camada anterior. Essas redes são ditas completamente conectadas, pois cada unidade em uma camada é conectada a todas as unidades da próxima camada. Uma camada de uma rede completamente conectada recebe igualmente esta denominação, e também é referenciada como camada densa.
+
+O comportamento de cada neurônio segue um padrão simples, ele recebe como entrada todas as saídas da camada anterior, seja uma camada oculta ou a camada de entrada. Na sequência ele realiza a soma ponderada dos valores de entrada com pesos e adiciona um viés. Ao final aplica uma função não linear, também conhecida como função de ativação, para calcular o valor de saída. 
+
+O funcionamento de um neurônio da PMC pode ser descrito pela Equação \ref{eq:fun_neuronio_pmc_vector}, considerando que a camada anterior tem tamanho $n$, ele recebe como entrada o vetor coluna $x$ de tamanho 3x1. O escalar $a$ corresponde ao valor de saída, enquanto que o vetor $w$ e o escalar $b$ simbolizam respectivamente os pesos e o viés. A função de ativação é representada pela letra grega $\varphi$. Os vieses e pesos de uma rede neural correspondem ao número de parâmetros da rede.
+
+\begin{equation}
+    a = \varphi(\sum_{i}^{n}w_ix_i+b)
+\label{eq:fun_neuronio_pmc_vector}
+\end{equation}
+
+A Figura \ref{fig:fun_neuronio_pmc} ilustra o comportamento do neurônio, conforme descrito anteriormente, recebendo como entrada um vetor $x$ de tamanho 3.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\linewidth]{capitulos/figuras/fun_neuronio_pmc.pdf}
+\caption{Neurônio da rede perceptron multicamadas.}
+\label{fig:fun_neuronio_pmc}
+\end{figure}
+
+É interessante notar que nas redes neurais, são utilizadas funções de ativação não lineares, como a unidade linear retificada (ReLU), a sigmóide ou a tangente hiperbólica, com o intuito de introduzir não linearidade nas redes e produzir funções capazes de separar dados não linearmente separáveis. Para permitir o treinamento da rede com o método Gradiente Descendente Estocástico \cite{robbins1951stochastic}, essas funções devem ser deriváveis, mesmo que em parte, como no caso da ReLU que não é derivável quando $x=0$.
+
+A Figura \ref{fig:fun_pmc} ilustra uma rede PMC composta da camada de entrada, duas camadas ocultas e a camada de saída. Na notação utilizada $x_i$ corresponde ao i-ésimo item do vetor de entrada $x$, enquanto ${a_i}^{[l]}$ representa o resultado da função de ativação do i-ésimo neurônio da camada $l$, a letra grega $\varphi^{[l]}$ corresponde a função de ativação da camada $l$, ao passo que ${w_{ij}}^{[l]}$ representa o peso aplicado a j-ésima entrada da i-ésima unidade da camada \textit{l}, já o termo ${b_i}^{[l]}$ equivale ao viés utilizado na i-ésima unidade da camada \textit{l} e por fim $\hat{y}$ simboliza o resultado da função de ativação da camada de saída da rede.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/fun_pmc.pdf}
+\caption{Rede perceptron multicamadas.}
+\label{fig:fun_pmc}
+\end{figure}
+
+
+A operação realizada por uma camada da PMC pode ser representada de maneira simplificada na forma vetorial: $a^{[l]} = \varphi (W^{[l]^T}a^{[l-1]} + b^{[l]})$. Em que $a$ é o vetor com todas as saídas das unidades da camada $l$, $\varphi$ corresponde a função de ativação da camada $l$, os pesos da camada $l$ são representados por uma matriz $W^{[l]}$ já que cada par de unidades em duas camadas consecutivas apresenta um peso correspondente, $a$ é o vetor com os valores das ativações da camada anterior. Os vetores mencionados anteriormente são vetores do tipo coluna. A matriz de pesos é transposta para permitir a multiplicação de $W^{[l]}$ pelo vetor de entrada $a^{[l-1]}$. O vetor $b$ contém o viés de todas as unidades da camada $l$.
+
+
+\subsection{Redes Neurais Convolucionais}\label{subsec:cap_fundamentos_cnn}
+
+As redes neurais convolucionais \cite{lecun1990handwritten} geralmente são aplicadas em problemas relacionados à área de visão computacional. Inicialmente foram propostas para resolver problemas de classificação de imagens, porém atualmente apresentam tipos diferentes de aplicações nesta área, como por exemplo: detecção de objetos, transferência de estilo e segmentação de imagens. Devido ao desempenho superior deste tipo de rede em desafios de classificação de imagens \cite{russakovsky2015imagenet}, essas redes representam o estado da arte neste tipo de aplicação. 
+
+Uma rede neural convolucional ou CNN, do inglês \textit{Convolutional Neural Network} é baseada em operações de convolução, que correspondem a aplicação de filtros (\textit{kernels}) que realçam determinadas características da imagem. Para que seja possível compreender melhor a aplicação desses filtros usando a operação de convolução, é necessário entender o que é convolução.
+
+A convolução é um operador matemático linear, que a partir de dois sinais (imagem e filtro) resulta em um terceiro sinal (a representação da imagem). A convolução discreta consiste em operações simples de multiplicações e somas, comumente utilizada em processamento de sinais e imagens. O objetivo é calcular a soma do produto desses sinais ao longo da região de superposição de sinais, mediante o deslocamento existente entre eles. Em processamento de imagens a convolução é usada, por exemplo, para detecção de arestas horizontais e verticais.
+
+A Figura \ref{fig:fun_convolucao} representa o procedimento de convolução na matriz de tamanho 3x3 do lado esquerdo com o filtro representado pela matriz de tamanho 2x2 representada no meio da figura, resultando na matriz de saída no lado direito. O filtro desliza sobre a matriz de entrada no sentido da esquerda para direita e de cima para baixo, a cada posição do filtro é realizada a soma dos produtos entre cada elemento da matriz de entrada que está sobreposto com o elemento correspondente do filtro que o sobrepõe, o resultado é armazenado em uma célula correspondente na matriz de saída. Na Figura \ref{fig:fun_convolucao} a operação de multiplicação e soma de uma posição da convolução está destacada em azul.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.7\linewidth]{capitulos/figuras/fun_convolucao.pdf}
+    \caption{Exemplo da convolução de uma imagem 3x3 por um filtro 2x2.}
+    \label{fig:fun_convolucao}
+\end{figure}
+
+A ideia por trás das convoluções é transformar a imagem, extraindo as características relevantes para o problema que ser quer resolver. Quando sucessivas operações de convolução são aplicadas ao longo das camadas convolucionais é possível extrair características cada vez mais abstratas e ao mesmo tempo diminuir o tamanho da imagem resultante. Por consequência essa construção hierárquica também reduz a quantidade de parâmetros envolvidos no treinamento, o que é uma grande vantagem sobre as PMCs.
+
+As características extraídas das imagens são invariantes à posição da imagem, de forma que são capazes de assimilar padrões espaciais que podem ser aprendidos e  reutilizados em diferentes partes das imagens. Uma aresta vertical, por exemplo, é uma característica que pode ser facilmente reutilizada. Além disso, devido à convolução, as conexões da rede tornam-se esparsas, ou seja, cada saída depende somente de uma pequena quantidade de parâmetros da entrada \cite{zhang2020dive}.
+
+Uma CNN tem sua estrutura tipicamente formada por uma camada de entrada, uma de saída e entre elas uma ou mais camadas convolucionais e uma ou mais camadas densas ao final da rede. Também é comum utilizar camadas de agrupamento e ou de normalização em lote após cada camada convolucional.
+
+A camada de entrada da CNN recebe a imagem a ser processada pela rede, em geral uma matriz de três dimensões: largura, altura e profundidade. A profundidade corresponde aos canais de cores da imagem, por exemplo, imagens coloridas usualmente tem três canais enquanto imagens em tons de cinza apresentam um canal apenas.
+
+A camada de convolução é a principal camada da CNN, ela é formada por filtros, matrizes quadradas em que cada um dos elementos representa um peso utilizado na operação de convolução. Assim como nas redes PMC, após a função linear, que no caso da CNN corresponde a operação de convolução somada do viés, é aplicado ao resultado uma função não linear como a ReLU. A cada filtro utilizado na convolução é gerado uma mapa de ativação, uma matriz de duas dimensões, de modo que a saída da camada de convolução é um volume com largura, altura e profundidade, em que a última dimensão corresponde ao número de filtros aplicados na camada. Os valores de cada elemento dos filtros e os vieses da camada de convolução formam os parâmetros desta camada.
+
+A camada de agrupamento tem como finalidade subamostrar a imagem de entrada para reduzir a carga computacional, reduzindo progressivamente o tamanho da saída das camadas convolucionais cada vez que a camada de agrupamento é aplicada após cada camada de convolução, ajudando a reduzir o número de parâmetros da rede.
+
+A camada de normalização em lote, proposta por \cite{ioffe2015batch} adiciona à rede uma operação de normalização após a camada convolucional. A operação centraliza a média em zero e normaliza a saída da camada convolucional que será utilizada de entrada na próxima camada. A utilização da normalização em lote traz algumas vantagens: ajuda no problema de desaparecimento do gradiente, ou \textit{vanishing gradient problem}; as redes ficam menos sensíveis à inicialização dos pesos; funciona como um regularizador da rede ajudando no problema do sobreajuste. Além de todas estas vantagens, segundo os autores da técnica, quando utilizada em uma rede para classificação de imagens, a normalização em lote permite a rede alcançar a mesma acurácia com 14 vezes menos etapas de treinamento da rede.
+
+As CNNs em geral apresentam uma ou duas camadas densas ao final, antes da camada densa de saída. A última camada apresenta uma função de ativação adequada para o problema que a rede resolve, no caso de uma classificação multiclasse, por exemplo é utilizada uma função de ativação como a Softmax. A saída da última camada convolucional da rede precisa ser "achatada" para servir de entrada para a camada densa, esse procedimento basicamente formata a matriz multidimensional da saída da camada convolucional em um vetor coluna, sem alteração nos valores dos elementos de saída. Outra forma também utilizada para o achatamento da saída da camada convolucional em um vetor coluna é através do uso de uma camada de agrupamento médio global do inglês \textit{Global Average Pooling} (GAP) \cite{lin2013network}, que gera o vetor coluna em que cada elemento corresponde a média de cada mapa de ativação apresente na saída da camada de convolução anterior.
+
+Muitas arquiteturas de redes CNN foram propostas nos últimos tempos, embora todas sejam baseadas nas camadas convolucionais, cada arquitetura apresenta diferentes composições em termos de número e tipos de camadas. Algumas das mais populares são a LeNet \cite{lecun1998gradient},  Inception \cite{szegedy2017inception}, Xception \cite{Chollet2017},  ResNet \cite{he2016deep}, DenseNet \cite{huang2017densely}, VGG16 \cite{simonyan2014very}, NASNet \cite{zoph2018learning}, EfficientNet \cite{tan2019efficientnet} e MobileNet \cite{Sandler2018}.
+
+Para exemplificar o funcionamento das redes neurais convolucionais, na Figura \ref{fig:fun_cnn_lenet} é apresentada a rede Lenet, mais especificamente a versão Lenet-5. Esta rede foi criada com o propósito de classificar dígitos manuscritos e é composta de duas camadas de convolução, cada uma delas seguida de uma camada de agrupamento, seguidas por mais uma camada de convolucão e por fim duas camadas densas, sendo a última delas a camada de saída em que é aplicada a função de ativação Softmax para classificação dos dígitos. 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/fun_cnn_lenet.pdf}
+\caption{Estrutura da rede LeNet-5.}
+\label{fig:fun_cnn_lenet}
+\end{figure}
+
+\subsection{Redes Neurais Long Short-Term Memory (LSTM)}\label{subsec:cap_fundamentos_lstm}
+
+Tanto as redes neurais perceptron multicamadas quanto as convolucionais são redes do tipo \textit{feedforward}, redes em que o processamento ocorre somente em uma direção, ou seja, da camada de entrada para a camada de saída. Elas recebem uma entrada e processam essa informação ao longo de suas camadas de uma forma direta para gerar um resultado na saída. Dado este comportamento, as redes \textit{feedforward} não são as mais indicadas para tratar dados sequenciais ou séries temporais, em que a informação de um momento anterior é relevante para a predição em um momento posterior, como um filme, que corresponde a uma sequência de imagens, ou um texto que é uma sequência de palavras, só para citar alguns exemplos. Para trabalhar com informações sequenciais foram criadas as redes neurais recorrentes, ou RNNs \cite{Rumelhart1986}.
+
+As redes neurais recorrentes são assim chamadas porque seus neurônios realizam a mesma tarefa recorrentemente para cada elemento de uma sequência, de forma que a saída de cada neurônio é dependente do cálculo realizado com base no elemento anterior da sequência e armazenado em sua memória interna. Para utilizar a informação sequencial presente nos dados, durante o treinamento da rede, a LSTM, tipo de rede recorrente, usa como entrada de cada neurônio, além do dado de entrada, a saída do mesmo neurônio obtida com o dado do passo anterior da sequência. Dessa forma ele recebe não apenas novas entradas a cada passo da sequência, mas também adiciona a estas entradas a saída da entrada anterior.
+
+Diferente das redes PMCs ou CNNs, as RNNs mantém a informação de estado, em memória, de modo que as futuras entradas da rede são derivadas das saídas anteriores. Este efeito de "memória" é obtido através de conexões recorrentes, que funcionam como um laço (\textit{loop}) interno na rede que a cada iteração processa um elemento. 
+
+A Figura \ref{fig:fun_rnn_neuronio} demonstra de forma simplificada o conceito de um neurônio de uma camada de uma rede neural recorrente. No exemplo é ilustrado um único neurônio que recebe uma entrada $x$ que corresponde a uma série temporal com três passos de tempo. Na parte superior
+é representado o neurônio com a entrada, a saída $\hat{y}$ e a conexão recorrente, na parte inferior a ilustração deste neurônio "desenrolado" ao longo do tempo.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.45\linewidth]{capitulos/figuras/fun_rnn_neuronio.pdf}
+\caption{Neurônio recorrente se desenrolando ao longo do tempo.}
+\label{fig:fun_rnn_neuronio}
+\end{figure}
+
+No diagrama desenrolado da Figura \ref{fig:fun_rnn_neuronio}, cada neurônio tem duas saídas. Uma é a saída correspondente ao passo de tempo especifico que o neurônio está processando e a outra atua como entrada para o próximo neurônio funcionando como a "memória" do processamento dos passos de tempo anteriores.
+
+As primeiras redes neurais recorrentes apresentaram um problema com o aprendizado de dependências de longo prazo, dificultando o trabalho com sequências longas, de forma que as informações nas primeiras entradas da sequência se perdem com o passar do tempo. A questão foi explorada em profundidade por \cite{hochreiter1997long} e \cite{bengio1994learning}. Para resolver o problema das RNNs com as dependências de longo prazo, foi proposta um novo tipo de rede recorrente chamada Long Short-Term Memory (LSTM) \cite{hochreiter1997long, zaremba2014recurrent, graves2005framewise}, que quer dizer memória longa de curto prazo. 
+
+As redes neurais LSTM foram concebidas especificamente para evitar o problema de dependência de longo prazo. Lembrar-se de informações por longos períodos de tempo é parte do seu comportamento padrão. As Long Short-Term Memory (LSTM) são uma variante específica de Redes Neurais Recorrentes (RNN) que foram projetadas para evitar o problema do desaparecimento do gradiente, comum em RNNs tradicionais. A LSTM apresenta uma estrutura de "portas" que regulam o fluxo de informações, permitindo que a rede mantenha ou descarte informações ao longo do tempo. Isso permite que a LSTM seja capaz de aprender dependências de longo prazo e sequências de dados com maior eficácia. Essas características tornam as LSTMs particularmente úteis para tarefas que envolvem sequências de dados, como reconhecimento de voz, tradução automática e processamento de linguagem natural, além de tarefas com imagens. No entanto, apesar de seu desempenho impressionante nessas tarefas, as LSTMs podem ser computacionalmente intensivas e mais lentas para treinar em comparação com alguns modelos mais recentes, como os Transformers.
+
+\subsection{Mecanismos de Atenção e Transformers}\label{subsec:cap_fundamentos_attention_transformers}
+
+Mecanismos de atenção \cite{bahdanu2014} são componentes de redes neurais que aprendem a selecionar a parte das entradas que o restante do modelo deve focar em cada passo de tempo. Os mecanismos de atenção foram criados com foco na tradução de textos, porém evoluíram para aplicações com imagens, como por exemplo na geração de legendas automáticas para vídeos \cite{xu2015show}. Uma vantagem dos mecanismos de atenção é que eles permitem que o modelo capture relações de longo alcance entre os elementos da sequência, sem depender de estados ocultos intermediários.
+
+Os \textit{Transformers} \cite{vaswani2017attention} são um tipo de rede neural que aplica mecanismos de atenção sem o uso de quaisquer camadas recorrentes, trazendo como vantagem um melhor desempenho em tempo de treinamento, pois são capazes de processar a sequência de entrada em paralelo, além de apresentarem resultados superiores em aplicações de processamento de linguagem natural \cite{wolf2016transformers}, superando os resultados obtidos nestas aplicações com redes neurais recorrentes e convolucionais. Alguns tipos de transformers publicados recentemente como ELMo \cite{Peters2018DeepRepresentations}, GPT \cite{radford2018improving} e BERT \cite{devlin2018bert} mostram o grande avanço obtido com esse tipo de rede em aplicações de processamento de linguagem natural. Além disso, os Transformers também têm mostrado potencial no processamento de imagens, sendo capazes de lidar com estruturas visuais complexas de maneira eficiente. A aplicação dessas redes em tarefas de visão computacional, como classificação de imagens e segmentação, tem apresentado resultados promissores, abrindo novas possibilidades para o uso de Transformers além do processamento de linguagem natural.
+    
+\subsection{Treinamento de uma Rede Neural}\label{subsec:cap_fundamentos_treinamento_ann}
+
+A estrutura de uma rede neural tem atributos como o número de camadas, quantidade de neurônios e função de ativação de uma camada e assim por diante, esses atributos estruturais da rede são chamados de hiperparâmetros. Não confundir com os parâmetros da rede, formados pelos pesos e vieses dos neurônios. Os parâmetros da rede são "aprendidos" através de um processo de treinamento em que a rede aprende os parâmetros a partir de um conjunto de dados.
+
+No caso do aprendizado profundo supervisionado, o treinamento é feito com base em um conjunto de dados com amostras cujo resultado é conhecido antecipadamente. No caso de uma tarefa de classificação por exemplos, cada amostra esta previamente rotulada com a classe correspondente. Antes de iniciar o treinamento de uma rede é necessário definir uma \textit{loss function} ou função de perda, uma função que mede a discrepância entre o valor de saída da rede e o valor esperado relativo a uma amostra. A função de perda é definida de acordo com a tarefa escolhida, na classificação multiclasse por exemplo, geralmente é utilizada a entropia cruzada, enquanto que o erro quadrático médio é normalmente a função utilizada em tarefas de regressão com valores contínuos. 
+
+Com o objetivo de treinar uma rede neural, o conjunto de dados disponível para treinar a rede em geral é dividido em três conjuntos:  treinamento, validação e testes, embora existam algumas variações, como no caso da validação cruzada.  O conjunto de treinamento, como o próprio nome diz, é usado para treinar a rede, o que geralmente acontece utilizando-se o algoritmo de \textit{back-propagation} \cite{Rumelhart1986}.
+
+No \textit{back-propagation}, cada amostra do conjunto de dados de treinamento é processada pela rede na etapa de \textit{forward} e o resultado utilizado para calcular o erro entre o valor esperado e o valor predito pela rede utilizando a função de perda. Na etapa de \textit{backward} os parâmetros da rede são ajustados com o intuito de reduzir o erro da rede. O ajuste dos parâmetros é realizado com base em um algoritmo de otimização, como por exemplo, o gradiente descendente, minimizando o erro entre as predições realizadas pela rede e os rótulos do conjunto de dados de treinamento.
+
+O conjunto de dados de validação é usado para avaliar a rede durante o processo de treinamento, ajustar os hiperparâmetros e executar a seleção da rede, enquanto que o conjunto de testes é usado no final do projeto, a fim de avaliar o desempenho da rede final que foi ajustada e selecionada no processo de treinamento com base nos conjuntos de treinamento e validação.
+
+A avaliação da rede é realizada com base em métricas escolhidas de acordo com a aplicação. As mais utilizadas geralmente são: acurácia, precisão, revocação ou \textit{recall}, F1 Score e a área sob a curva ROC, ou AUC. A acurácia é a fração que representa o total de predições corretas de todas as predições realizadas pela rede. A precisão é a fração de positivos verdadeiros entre os positivos preditos pela rede neural e o \textit{recall} representa a fração de positivos preditos pela rede do total de positivos verdadeiros. A área sob a curva ROC indica como a taxa de falsos positivos cresce à medida que a taxa de verdadeiros positivos aumenta. Por fim o F1 Score é calculado com base na média harmônica da precisão e \textit{recall}.
+
+O aprendizado por transferência, ou \textit{transfer learning} é uma estratégia eficaz para treinar uma rede quando se tem um pequeno conjunto de dados. Nesta técnica geralmente a rede é pré-treinada em um conjunto de dados extremamente grande, como o ImageNet \cite{Russakovsky2014}, para depois ser reutilizada e aplicada à tarefa de interesse em que se tem poucos dados disponíveis. 
+
+O aprendizado por transferência por extração de características em uma rede convolucional é o método em que as camadas densas de uma rede pré-treinada são removidas e a parte restante no início da rede, chamada base convolucional, é mantida. A parte preservada funciona como um extrator de características. Nesse método, uma ou mais camadas de rede são adicionadas ao topo da base convolucional e o conjunto final, formado pela base convolucional com seus pesos "congelados" e as camadas adicionais passam por um processo de treinamento, com base no conjunto de dados com menor tamanho. Neste processo, apenas os parâmetros da parte adicionada são "aprendidos".
+
+Outra forma de aprendizado por transferência de redes convolucionais é conhecida como ajuste fino, em que não apenas são adicionadas novas camadas a uma base convolucional previamente treinada, mas também uma ou mais camadas na parte final da base convolucional são "descongeladas" para que tenham seus parâmetros também atualizados no processo de treinamento com o novo conjunto de dados.
+
+\textit{Overfitting}, ou sobreajuste, é um fenômeno que ocorre comumente no processo de treinamento de redes neurais. Ele corresponde a situação em que a rede aprende perfeitamente os pesos com base no conjunto de treinamento, mas não consegue generalizar, e portanto, quando avaliada com base nos conjuntos de dados de validação ou testes, os resultados são insatisfatórios. Nas redes CNNs o sobreajuste pode ocorrer em casos em que os filtros da rede convolucional aprende padrões que não fazem parte do domínio do problema.
+
+Nos casos em que há poucos dados para treinamento há um risco alto da rede ficar superajsutada para estes dados. Nesses casos, uma técnica útil para ajudar com este problema é chamada \textit{data augmentation}, ou expansão do conjunto de dados. Ela expande o conjunto de dados de treinamento, fazendo uma série de alterações aleatórias nas imagens para produzir exemplos de treinamento parecidos, mas ao mesmo tempo diferentes. A ideia é que exemplos de treinamento modificados aleatoriamente podem reduzir a dependência de uma rede com características específicas, melhorando assim sua capacidade de generalização, bem como reduzindo a risco de sobreajuste durante o treinamento. 
+
+    
+\subsection{Otimização de Hiperparâmetros (HPO)}\label{subsec:cap_fundamentos_hpo}
+
+O desempenho de uma rede neural está diretamente relacionado ao seu treinamento \cite{riaz2020deep}, um processo no qual se busca aprender os melhores parâmetros da rede que minimizam uma função de perda, dado um conjunto de dados amostrais e seus rótulos correspondentes. Entretanto, antes do processo de treinamento, alguns parâmetros devem ser estabelecidos, como a arquitetura da rede neural, a taxa de aprendizado e o otimizador utilizado.
+
+Esses parâmetros são conhecidos como hiperparâmetros e geralmente são definidos por engenheiros de aprendizado de máquina com base em sua experiência empírica e intuição \cite{choi2021active} desenvolvida ao longo do tempo. Para tornar o processo de seleção de hiperparâmetros mais eficiente, algumas técnicas de otimização de hiperparâmetros foram desenvolvidas ao longo do tempo, como o método Bayesiano~\cite{snoek2012practical} e a busca aleatória~\cite{bergstra2012random}.
+
+Mais recentemente, um método de otimização conhecido como Hyperband \cite{Li2017} foi proposto. Este método define a otimização de hiperparâmetros como um problema de exploração pura não-estocástico de caça-niqueis com braços infinitos, do inglês \textit{pure-exploration non-stochastic infinite-armed bandit} (NIAB), um problema de decisão sequencial, onde, em cada estágio, um dos infinitos braços é escolhido e uma recompensa é obtida de acordo com a sequência escolhida.
+
+O Hyperband tem uma abordagem que busca acelerar a busca aleatória por meio de alocação adaptativa de recursos e interrupção antecipada~\cite{Li2017}. No Hyperband, cada recurso corresponde a um hiperparâmetro a ser otimizado, como a arquitetura da rede neural, o número de camadas ou a taxa de aprendizado associada à configuração de hiperparâmetros amostrada aleatoriamente. De acordo com os seus autores, o Hyperband mostrou um desempenho de uma ordem de grandeza maior comparado aos métodos de otimização bayesiana existentes.
+
+\section{Diagnóstico da COVID-19 Baseado em TC}\label{section:cap_fundamentos_diagnostico_covid}
+
+\subsection{Pandemia da COVID-19 }\label{subsec:cap_fundamentos_covid_19}
+
+A pandemia SARS-Cov2 teve um impacto mundial~\cite{WorldHealthOrganization2020CoronavirusReports}. A Reação em cadeia da polimerase da transcrição reversa em tempo real (RT-PCR) é considerada o padrão-ouro para o diagnóstico COVID-19~\cite{oliveira2020sars}. Um estudo mostra que a tomografia computadorizada inicial de tórax (TC) e o RT-PCR apresentaram um desempenho de diagnóstico comparável na identificação de pacientes suspeitos de COVID-19 \cite{he2020diagnostic}. Além disso, afirma que a TC pode ser usada para minimizar o risco de falso-negativo de pacientes clinicamente suspeitos e positivos com teste RT-PCR com resultado inicial negativo.
+
+\subsection{Tomografia Computadorizada}\label{subsec:cap_fundamentos_tomografia}
+    
+De acordo com \cite{dhawan2011medical}, as modalidades de imagens médicas são classificadas de forma geral em duas classes: a primeira são as imagens anatômicas ou estruturais e a segunda são funcionais ou metabólicas. As imagens do tipo anatômicas são capazes de discriminar diferentes elementos constituintes do corpo, como água, osso, tecido mole e outros fluidos bioquímicos.
+
+Um modalidade de imagem anatômica comumente utilizada são as imagens de raio-X, incluindo as tomografias computadorizadas. Os raios-X são ondas eletromagnéticas com comprimentos de onda menores do que o espectro de luz ultravioleta ou visível. Devido ao tamanho do seu comprimento de onda, os raios-X têm excelente capacidade de penetração e transmissão direta no corpo humano. No exame de raio-x uma fonte de radiação emite um feixe de raios-X que atravessa o corpo humano e é recebido por um receptor.O feixe de radiação é atenuado a massa das estruturas fisiológicas do corpo, de forma que o número de fótons de raios-X que alcançam o detector varia em função dos materiais do corpo atravessado pelo feixe de raios. Os raios-x são mais atenuados pelos ossos do que pelos tecidos moles ou pelo ar. Esta característica permite medir os coeficientes de atenuação do tecido ou parte do corpo que está sendo examinada baseado no número de fótons que chegam ao receptor.
+
+Enquanto o exame de radiografia digital de raios-x captura a imagem em duas dimensões, a tomografia computadorizada utiliza o mesmo principio básico da radiografia, porém consegue capturar informações de diversas fatias e transformá-las em dados tridimensionais sobre as estruturas anatômicas estruturadas, sendo mais adequado para para o diagnóstico e tratamento de doenças que se beneficiam dessas informações em 3D, como por exemplo a análise do formato em três dimensões de nódulos no pulmão em pacientes com câncer.
+
+Em 1972, Godfrey Hounsfield desenvolveu o primeiro tomógrafo comercial. Este tomógrafo usava um algoritmo de reconstrução de imagem computadorizado baseado na transformada de Radon. Hounsfield e Allan Cormack receberam conjuntamente o prêmio Nobel de 1979 por suas contribuições para o desenvolvimento da TC para aplicações radiológicas.
+
+Na tomografia computadorizada é utilizado um equipamento conhecido como tomógrafo que apresenta um pórtico, em inglês \textit{gantry} com uma abertura na qual desliza uma cama com o paciente deitado. No modelo de tomógrafo espiral, o \textit{gantry} contém um emissor e um conjunto de receptores que giram juntos ao mesmo tempo em que a cama com o paciente é movida perpendicularmente ao plano de giro a uma velocidade constante. Neste tipo de tomógrafo, o movimento da cama do paciente permite que os pontos de amostragem forneçam os dados ao longo de uma espiral.
+
+\subsection{Achados Tomográficos da COVID-19 }\label{subsec:cap_fundamentos_achados_tomograficos}
+
+De acordo com \cite{dias2020orientaccoes} os achados da COVID-19 no exame de tomografia computadorizada de alta resolução dependem da fase da doença. Contados a partir do início dos sintomas, os achados serão mais frequentes nas fases intermediária (3 a 6 dias) e tardia (a partir de 7 dias), sendo este um dos fatores que explicam a variabilidade da sensibilidade observada com o exame de tomografia, entre 60 a 96\%.
+
+Na fase inicial a TC pode ser normal em 40-50\% dos casos. Opacidades focais com atenuação em vidro fosco ou consolidações aparecem em cerca de 17\% dos casos.  Opacidades multifocais bilaterais em cerca de 28\%. As lesões pulmonares têm distribuição periférica em cerca de 22\% dos casos.
+
+Na fase intermediária a TC pode ser normal entre 10 a 25\% dos casos. Consolidação em cerca de 55\% dos casos. Acometimento é bilateral, em sua maioria (cerca de 76\%), com distribuição periférica (64\%). Opacidades reticulares em aproximadamente 9\% dos casos.
+
+Na fase tardia da doença a TC pode ser normal em até 5\% dos casos. Consolidação ocorre em até 60\% dos casos. O envolvimento é bilateral em cerca de 88\%, com distribuição periférica em 72\%. Opacidades reticulares em 20-48\%. Padrão de pavimentação em mosaico em 5 a 35\% dos casos (“\textit{crazy paving}”).
+
+% A figura \ref{fig:fun_modelo_aprendizado_profundo} obtida em [REFERENCIA] apresenta exemplo de uma tomografia de um paciente com COVID.
+% \begin{figure}[!ht]
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{capitulos/figuras/fun_achados_covid.pdf}
+%     \caption{Paciente de 43 anos com COVID-19, apresentando falta de ar, febre e tosse há 8 dias. Tomografia computadorizada demonstrando sinal do halo invertido nos lobos inferiores.}
+%     \label{fig:fun_convolucao}
+% \end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1.0\linewidth]{capitulos/figuras/fun_exemplos_lesoes.pdf}
+    \caption{Amostras de tomografias computadorizadas do tórax com regiões pulmonares infectadas de pacientes com COVID-19 \cite{Kwee2020ChestKnow}.}
+    \label{fig:fun_exemplos_funcoes}
+\end{figure}

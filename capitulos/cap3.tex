@@ -1,0 +1,318 @@
+\chapter{Trabalhos Relacionados} \label{cap:cap_trabalhos}
+
+A partir do início da pandemia de SARS-CoV-2, grupos de pesquisa começaram a publicar artigos sobre os achados tomográficos relacionados à COVID-19 \cite{zhu2020ct} e também embasando o uso da tomografia como uma das técnicas disponíveis para ajudar na detecção da doença, pois este tipo de exame mostrou bons resultados, principalmente em relação a sensibilidade, quando comparados ao RT-PCR, considerado o padrão ouro no diagnóstico da COVID-19 \cite{fang2020sensitivity, long2020diagnosis}. Na mesma época diversos estudos publicaram bons resultados na aplicação de técnicas de aprendizado profundo em exames de tomografia computadorizada\cite{mei2020artificial, roberts2021common, lacerda2021hyperparameter}, Raio-X e Ultrassom \cite{barros2021pulmonary} para detecção da COVID-19. 
+
+Neste capítulo são apresentados alguns destes trabalhos, porém por conveniência, os trabalhos apresentados aqui são resumidos em duas tabelas: a primeira Tabela \ref{table:trabalhos_relacionados_tecnicas_utilizadas} apresenta resumidamente os tipos de rede neurais utilizados, enquanto que a Tabela \ref{table:trabalhos_relacionados_dados_validacao} aponta para cada trabalho quais são as classes cujo respectivo classificador foi treinado para identificar, bem como o tamanho do conjunto de dados utilizado, a técnica de validação e os resultados da métricas utilizadas na validação. É interessante notar que dependendo do trabalho o conjunto de dados é descrito em termos do número de pacientes, número de imagens ou do número de exames de tomografia utilizados. 
+
+
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Trabalhos relacionados: tipos de redes} 
+\label{table:trabalhos_relacionados_tecnicas_utilizadas}
+\begin{tabularx}{1.0\textwidth} { 
+  >{\hsize=6.5cm\raggedleft\arraybackslash}X 
+%   >{\raggedleft\arraybackslash}X
+  >{\raggedright\arraybackslash}X 
+  >{\raggedright\arraybackslash}X
+ }
+ \toprule   
+ Referência & 
+ Seleção dos cortes & 
+ Classificação \\ 
+\midrule
+
+% linha 1
+Wang, S. et al. \cite{wang2021deep} & 
+– & 
+Inception-v3
+
+\\
+
+% linha 2
+Mei et al. \cite{mei2020artificial} & 
+Inception-Resnet-v2 &
+ResNet-18
+
+% Segmenta a região do pulmão no preprocessamento e utiliza uma rede Inception-Resnet-v2 \cite{szegedy2017inception} para seleção dos cortes com anormalidades. Para a classificação combina uma ResNet-18 \cite{he2016deep} que recebe os cortes selecionados e uma rede perceptron multicamadas, que tem como entrada um vetor com 12 características do paciente, incluindo sintomas clínicos, idade, sexo e achados de exames laboratoriais.
+
+\\
+
+% linha 3
+Ardakani et al. \cite{ardakani2020application} & 
+– & 
+ResNet-101
+
+% Utilizando recortes (\textit{patches}) das lesões de imagens de tomografia, recortadas por radiologistas, utiliza uma rede convolucional ResNet-101 \cite{he2016deep} para classificar imagens dos recortes como pneumonia por COVID-19 ou outro tipo de pneumonia. A rede é pré-treinada com o conjunto de dados Imagenet para transferência de aprendizado.
+
+\\
+
+% linha 4
+Wang, S. et al. \cite{wang2020fully} & 
+DenseNet & 
+DenseNet
+
+% Segmenta a região do pulmão no preprocessamento com uma rede DenseNet \cite{huang2017densely} treinada com o conjunto dados VESSEL12 \cite{rudyanto2014comparing} e pré-treinada com o conjunto de dados Imagenet para transferência de aprendizado. Treina o classificador de COVID-19 em duas etapas: a primeira treina uma rede DenseNet para classificar cortes de tomografia com anomalias e a segunda treina a mesma rede com um conjunto de dados de exames de casos de COVID-19 utilizando a primeira rede para transferência de aprendizado.
+
+\\
+
+% linha 5
+Bai, H. X. et al. \cite{bai2020artificial} & 
+EfficientNetB3 & 
+EfficientNetB4
+
+% Segmenta a região do pulmão no preprocessamento e na sequencia utiliza duas redes, uma EfficientNetB3 \cite{tan2019efficientnet} para identificar cortes com anomalias relacionadas a pneumonia, e uma EfficientNetB4 \cite{tan2019efficientnet} para classificação do tipo de pneumonia COVID-19 ou pneumonia não COVID-19, recebendo como entrada os cortes com anomalias selecionados pela primeira rede.
+
+\\
+
+% linha 6
+Goncharov, M. et al. \cite{goncharov2021ct} & 
+– & 
+U-Net
+
+% Segmenta o pulmão com uma rede U-Net treinada com os datasets NSCLC-Radiomics \cite{aerts2019data} e LUNA16 \cite{van2019luna16} cujos mapas de características são consumidos por uma rede 2D U-Net \cite{ronneberger2015u} para segmentação de lesões, e também são consumidas por uma camada de agrupamento de pirâmide \cite{he2015spatial}, conectada a duas camadas completamente conectadas para a classificação.
+
+\\
+
+\bottomrule
+
+\end{tabularx}
+\end{table}
+
+
+
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Trabalhos relacionados: conjunto de dados, tipos de validação e resultados} 
+\label{table:trabalhos_relacionados_dados_validacao}
+\begin{tabularx}{1.0\textwidth} { 
+%   >{\hsize=1.5cm\raggedleft\arraybackslash}X 
+  >{\raggedright\arraybackslash}X 
+  >{\raggedright\arraybackslash}X
+  >{\hsize=2.8cm\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X 
+  >{\centering\arraybackslash}X }
+ \toprule   
+ Referência & 
+ Classes & 
+ Tamanho do \textit{dataset}\newline(Total,Covid) & 
+ Tipo de  \newline validação &  
+ Validação interna &
+ Validação externa \\ 
+\midrule
+
+% linha 1
+Wang, S. et al. \cite{wang2021deep} & 
+
+PC e PNC & 
+
+Número de imagens\newline
+TR: 320, 160 \newline
+VI: 455, 90 \newline 
+VE: 290, 70 
+& 
+
+Interna \textit{holdout} e externa & 
+
+ACU: 0,895
+AUC: 0,93
+ESP:0,87
+F1: 0,77
+SEN: 0,88 &
+
+ACU: 0,793
+AUC: 0,81
+ESP:0,67
+F1: 0,63
+SEN: 0,81
+
+\\
+
+% linha 2
+Mei et al. \cite{mei2020artificial} & 
+ 
+PC e CN & 
+ 
+Número de pacientes\newline
+TR: 626, 285\newline
+VI: 279, 134
+\newline&
+ 
+Interna \textit{holdout} & 
+ 
+AUC: 0,92
+ESP: 0,83
+SEN: 0,843 \newline&
+
+-
+
+\\
+
+% linha 3
+Ardakani et al. \cite{ardakani2020application} & 
+ 
+PC e OU & 
+ 
+Número de pacientes\newline
+TO: 194, 108 & 
+ 
+Interna \textit{holdout} &  
+ 
+ACU: 0,995
+AUC: 0,994
+ESP: 0,99
+SEN: 1,00 \newline& 
+ 
+-
+ 
+\\
+
+% linha 4
+
+Wang, S. et al. \cite{wang2020fully}  & 
+ 
+PC e PNC & 
+ 
+Número de imagens \newline
+TR: 709, 560
+VE 1: 226, 102 
+VE 2: 161, 92 
+& 
+ 
+Interna e Externa (em duas províncias) & 
+ 
+ACU: 0,812
+AUC: 0,90
+ESP:0,899
+F1: 0,869
+SEN: 0,789 & 
+
+VE 1\newline
+ACU: 0,783
+AUC: 0,87
+ESP:0,766
+F1: 0,77
+SEN: 0,804 \newline
+
+VE 2\newline
+ACU: 0,801
+AUC: 0,88
+ESP:0,812
+F1: 0,82
+SEN: 0,794
+ 
+\\
+
+% linha 5
+
+Bai, H. X. et al. \cite{bai2020artificial} & 
+
+PC e PNC  & 
+
+Número de pacientes\newline
+TR: 1067, 479 \newline
+VI: 119, 42
+& 
+ 
+Interna \textit{holdout} &
+ 
+ACU: 0,96
+AUC: 0,96
+ESP: 0,96
+SEN: 0,95
+
+& 
+ 
+-
+\\
+
+Goncharov, M. et al. \cite{goncharov2021ct}  & 
+ 
+PC e CN  & 
+ 
+Número de exames\newline
+TR: 1110, 856 \newline
+VI: 431, 29 \newline 
+VE: 123, 32  
+& 
+
+Interna (3-fold e \textit{holdout}) e externa & 
+ 
+Não informado & 
+ 
+AUC: 0,93
+
+\\
+
+
+% mia	abril	7	High	Unclear (DL)	High	Low	prognosis	DL	CT	TBD	Unclear	﻿Diagnosis: 101 images, 33 COVID-19 Severity: 38 images of differing severity	internal hold-out validation	﻿
+% Diagnosis model: AUC, 0.95
+
+\bottomrule
+
+\multicolumn{6}{l}{\small CN: COVID-19 negativo, OU: outras enfermidades, PC: pneumonia COVID-19.} \\
+ 
+\multicolumn{6}{l}{\small PNC: pneumonia não COVID-19.} \\
+
+\multicolumn{6}{l}{\small TO: Total, TR: treinamento, VI: validação interna, VE: validação externa.} \\
+
+\multicolumn{6}{l}{\small SEN: sensibilidade, ESP: especificidade, ACU: acurácia.} \\
+
+\end{tabularx}
+\end{table}
+
+
+Em \cite{wang2021deep} foi proposto um método baseado em aprendizado profundo para classificar imagens de tomografia e diagnosticar casos de pneumonia como casos COVID-19 e outras pneumonias.  Empregando técnicas como limiarização de OTSU e preenchimento de área os autores foi realizada a segmentação das áreas de interesse correspondente às áreas dos pulmões. Em seguida foi utilizada transferência de conhecimento a partir de uma rede Inception \cite{szegedy2015going} modificada e pré-treinada na Imagenet \cite{deng2009imagenet} para extrair características das imagens e em seguida treinar um classificador binário. Utilizando um conjunto de dados com 775 imagens de casos de COVID-19 e pneumonia comum, os autores separaram uma parte dos dados para validação interna (hold out validation) e fizeram o treinamento da rede, com 290 imagens de pacientes obtidas de outros centros de tratamento fizeram a validação externa. Os resultados obtidos na avaliação do modelo foram (validação interna/externa): sensibilidade (0,88/0,81); especificidade (0,87/0,67); AUC (0,93/0,81); F1 (0,77/0,63) e acurácia (0,895/0,793).
+
+Em \cite{mei2020artificial} os autores propuseram um modelo baseado em inteligência artificial para identificar pacientes com COVID-19 combinando imagens de tomografia computadorizada de tórax associadas a informações clínicas dos pacientes. Como pre-processamento das imagens de tomografia, foi feita a quantização das imagens para 255 tons de cinza baseada na janela de pulmão e em seguida realizada a segmentação do pulmão e da área do corpo que não inclui o pulmão, identificando a área do corpo como o maior componente conectado com pixels de intensidade maior que 175 e a área do pulmão com todos os pixels com intensidade menor que 175. 
+
+O modelo proposto por \cite{mei2020artificial} utiliza uma abordagem híbrida em que a aprendizado profundo é combinada com aprendizado de máquina. São utilizadas duas redes CNN, a primeira baseada na arquitetura Inception-Resnet-v2 \cite{szegedy2017inception} pré-treinada com imagens de casos de tuberculose pulmonar para selecionar os cortes com anormalidades utilizados por uma segunda rede baseada na arquitetura ResNet-18 \cite{he2016deep} treinada para classificar casos de COVID-19. O vetor de 512 posições resultante da saída de uma camada GAP após a ultima camada convolucional da segunda rede CNN é concatenado com o vetor de 12 características clinicas do paciente para treinar um PMC responsável pela predição do diagnóstico da COVID-19. Para o treinamento e avaliação do modelo foi utilizado um conjunto de dados com 905 pacientes testados com o RT-PCR, divididos em sub-conjuntos de treinamento, validação e testes na proporção 60\%, 10\% e 30\%. Os resultados obtidos foram: sensibilidade 0,84; especificidade 0,83 e AUC 0,92.
+
+Em \cite{ardakani2020application}, com o objetivo de criar um classificador capaz de diferenciar pacientes com COVID-19 de pacientes com outras enfermidades pulmonares, como pneumonia bacteriana, os autores treinaram e testaram dez arquiteturas de redes CNN conhecidas. A ResNet-101 \cite{he2016deep} foi a arquitetura que apresentou o melhor desempenho. Para treinar e avaliar os modelos foram utilizadas imagens com as lesões encontradas manualmente nos cortes das tomografias ao invés do corte inteiro. O estudo se baseou em 1020 imagens de cortes de tomografias de 194 pacientes, 108 com a COVID-19 e 86 pacientes com outras doenças. Utilizando uma abordagem de amostragem baseada em \textit{holdout}, os dados foram divididos em treinamento e validação na proporção de 80\% e 20\%. Os seguintes resultados foram obtidos com a ResNet-101: sensibilidade 1,000; especificidade 0,990 e AUC 0,994 e  acurácia: 0,995.
+
+Em \cite{wang2020fully} foi apresentado um método baseado em aprendizado profundo para diagnóstico da SARS-CoV-2 e regressão para prognóstico do tempo de internação de pacientes com a doença. O treinamento e teste do modelo de diagnóstico se baseou em um conjunto de dados com 1096 pacientes, dos quais 754 apresentavam exame RT-PCR positivo para COVID-19 e 342 com diagnóstico positivo para outros tipos de pneumonia antes de dezembro de 2019. Os pacientes foram selecionados de hospitais em seis diferentes localidades na China. Os pacientes da localidade Wuhan e Henan foram escolhidos para o treinamento dos modelos. Para validação externa do modelo de diagnóstico, foram criados dois conjuntos de dados independente, um da localidade de Heilongjiang e o segundo de Anhui, para validação externa do modelo de prognóstico foi criado um conjunto de dados de pacientes da localidade de Huangshi.
+
+Com o objetivo de preprocessamento, inicialmente foi utilizado um modelo de aprendizado profundo baseado na arquitetura Densenet121-FPN \cite{huang2017densely} \cite{lin2017feature} para segmentação da área do pulmão, este modelo foi pre-treinado com o conjunto de dados Imagenet \cite{deng2009imagenet} e ajustado com o conjunto de dados VESSEL12 \cite{rudyanto2014comparing}. Após a segmentação a região de interesse do pulmão foi definida em um \textit{bounding box}. O modelo de diagnóstico, chamado COVID19-Net, se baseou em uma arquitetura Densenet \cite{huang2017densely} com quatro blocos densos. O treinamento foi dividido em dois passos: primeiro a rede foi treinada em um conjunto de dados grande, com 4106 pacientes com câncer de pulmão para aprender características relacionadas a anormalidades nos pulmões. No segundo passo foi feita a transferência de conhecimento da rede treinada no passo 1, ajustando-a com um conjunto de dados de tomografias com COVID-19 e outras pneumonias para criar o modelo de diagnóstico de COVID-19. Para o treinamento do modelo de prognóstico foram utilizadas 64 características extraídas pela COVID19-Net, combinadas com dados clínicos como idade, comorbidade e sexo, para gerar um modelo de regressão de Cox. Os resultados obtidos na avaliação externa do modelo de acordo com a localidade (Heilongjiang/Anhui) foram: sensibilidade (0,804/0,794); especificidade (0,766/0,812); AUC (0,87/0,88); F1 Score (0,77/0,82) e acurácia (0,783/0,801).
+
+Em \cite{bai2020artificial} pesquisadores propuseram um método para diferenciar casos de pneumonia de COVID-19 de outros tipos de pneumonia baseado em aprendizado profundo e imagens de tomografia de tórax. Para isso foi utilizado um conjunto de dados com 1186 pacientes, sendo 521 com COVID-19 e 665 com outros tipos de pneumonia oriundos de nove diferentes hospitais na China e um nos Estados Unidos. Inicialmente a área dos pulmões foi segmentada através de limiarização, seguida de um procedimento de segmentação semi-automático chamado método do contorno ativo \cite{kass1988snakes}. No pre-processamento das imagens para serem utilizadas no treinamento e teste do modelo de aprendizado profundo, elas foram quantizadas em 256 tons de cinza utilizando uma janela de pulmão, seguida de normalização e padronização. 
+
+A abordagem utilizou duas redes neurais convolucionais, a primeira baseada na arquitetura EfficientNet B3 \cite{tan2019efficientnet} para identificar os cortes com anormalidades decorrentes de pneumonia e a segunda, responsável por classificar a imagem de acordo com seu diagnóstico baseada na arquitetura EfficientNet B4 \cite{tan2019efficientnet}. Para o treinamento da primeira rede, especialistas rotularam os cortes com lesões de pneumonia para realizar seu treinamento, esta rede foi utilizada para separar os cortes utilizados como entrada na segunda rede, responsável por classificar cada corte como pneumonia por COVID-19 ou outro tipo de pneumonia. O resultado da classificação de cada corte foi então agrupado por exame e utilizado como entrada em uma rede neural com duas camadas completamente conectadas para realizar o diagnóstico do paciente.
+
+O modelo de aprendizado profundo foi avaliado através de uma partição \textit{holdout} correspondente a 10\% das amostras para validação interna e outro conjunto de amostras de outras instituições não relacionadas aos exames utilizados no treinamento do modelo para uma validação externa. Os resultados obtidos na avaliação do modelo foram (validação interna/externa): sensibilidade (0,95/0,89); especificidade (0,96/0,86); AUC (0,95/0,90) e acurácia (0,96/0,87).
+
+Em \cite{goncharov2021ct} foi proposto uma única rede neural convolucional capaz de resolver duas tarefas: a identificação de casos da COVID-19 e a classificação da gravidade destes casos em cinco categorias. As categorias rotuladas de CT-0 a CT-4 correspondem ao percentual de comprometimento dos pulmões, com um incremento de 25\% a cada categoria, de modo que a CT-1 corresponde ao intervalo de 0\% a 25\% e a CT-4 75\% a 100\%. A quantificação da severidade tem como objetivo priorizar os atendimentos e o tratamento adequado, como por exemplo, encaminhamento para a unidade de tratamento intensivo. A tarefa de quantificação da gravidade da pneumonia foi realizada com base na segmentação e cálculo da relação entre o volume das áreas de lesões e a área do pulmão. Como pre-processamento para o treinamento do modelo de segmentação das lesões e classificação da COVID-19 foi utilizado um modelo de segmentação do pulmão, baseado na arquitetura U-Net, e treinado com os datasets NSCLC-Radiomics \cite{aerts2019data} e LUNA16 \cite{van2019luna16}
+
+Com o objetivo de fazer a identificação da COVID-19 e segmentação das lesões de forma simultânea, em uma única rede, foi utilizada um rede neural convolucional com duas cabeças. Uma rede 2D U-Net \cite{ronneberger2015u} corresponde a cabeça responsável pela segmentação das lesões, utilizada como base para gerar a pontuação de gravidade. A cabeça de classificação compartilha o mapa de características obtido a partir da última camada da arquitetura U-Net (a cada corte) com a de segmentação. Na classificação os mapas de características são empilhados e agregados em um vetor de características utilizando uma camada de agrupamento de pirâmide \cite{he2015spatial}, conectada a duas camadas densas seguidas de uma ativação sigmoide para a classificação.
+
+Para realizar o treinamento e validação interna da rede responsável pela classificação, foram utilizados 1512 exames de tomografia de tórax, sendo 806 com COVID-19 e 656 sem a COVID-19. Para a segmentação das lesões foram utilizadas 79 exames de tomografias anotados. Foi utilizado um conjunto de dados independente para a validação externa contendo 123 exames de pacientes distribuídos entre casos: sem sintomas de COVID-19; pneumonia de COVID-19; pneumonia bacteriana; câncer. A métrica AUC obtida na avaliação do modelo utilizando o conjunto de dados de validação externa foram: COVID-19 versus outros (0,93); COVID-19 versus normais (0,97); COVID-19 versus pneumonia bacteriana (0,87); COVID-19 versus câncer de pulmão (0,93).
+
+Em [] os autores utilizaram uma Rede Neural Convolucional (CNN), um método de aprendizado profundo, para classificar automaticamente imagens de tomografia computadorizada (CT) dos pulmões para o diagnóstico precoce da COVID-19. O conjunto de dados era composto por 1.396 imagens de tomografia computadorizada dos pulmões (386 COVID-19 e 1.010 Não-COVID-19). Os pesquisadores também utilizaram k-Nearest Neighbors (k-NN) e Support Vector Machine (SVM) para comparação. Uma arquitetura CNN de 23 camadas foi projetada e usada como classificador, juntamente com outras arquiteturas CNN como Alexnet e Mobilenetv2. Os resultados da classificação foram calculados aumentando o número de imagens utilizadas no treinamento para a primeira arquitetura CNN de 23 camadas em 5, 10 e 20 vezes utilizando métodos de aumento de dados. Dois diferentes processos de treinamento e teste, validação cruzada de 2 e 10 vezes, foram realizados para revelar o efeito da mudança no número de imagens nos grupos de treinamento e teste nos resultados.
+
+O estudo aumentou os dados usando as seguintes técnicas: Mudança de Contraste, onde os valores de pixel relacionados ao tamanho da imagem original foram multiplicados por 0,8 e 0,6 respectivamente para mudar o contraste e criar a segunda e a terceira imagens. Mudança de Brilho, em que o brilho das imagens de segunda e terceira ordem foi aumentado, alterando o valor de cada pixel em 7, o que criou a quarta e a quinta imagens. Distorção, onde as imagens originais foram erodidas por um processo de distorção para gerar um conjunto de novas imagens e os mesmos processos aplicados na primeira etapa, mudança de contraste e brilho, também foram aplicados a essas imagens distorcidas. Adição de Ruído, onde um ruído "salt and pepper" de densidade 0,03 foi adicionado à imagem original e às primeiras nove imagens derivadas dela, efetivamente aumentando o número de imagens. Esses processos de aumento de dados foram aplicados não apenas às imagens originais, mas também às imagens LBP (Padrão Binário Local), LE (Entropia Local) e GLCM (Matriz de Co-ocorrência de Nível Cinza). Isso resultou em um conjunto de dados aumentado que era 5 vezes, 10 vezes e 20 vezes maior que o conjunto de dados original.
+
+O estudo obteve a maior média de sensibilidade, especificidade, precisão, pontuação F-1 e valores AUC de 0,9197, 0,9891, 0,9473, 0,9058, 0,9888 respectivamente para validação cruzada de 2 vezes, e 0,9404, 0,9901, 0,9599, 0,9284, 0,9903 respectivamente para validação cruzada 10-fold. Isso demonstra que a análise de imagens de tomografia computadorizada dos pulmões com a ajuda de métodos de aprendizado profundo pode acelerar o diagnóstico da COVID-19 e reduzir significativamente a carga sobre os trabalhadores de saúde. No entanto, o estudo também identificou áreas para melhoria. Ele sugeriu aumentar o número de dados radiológicos e clínicos de pacientes com COVID-19 e disponibilizá-los para os pesquisadores através de publicações Open Access para melhorar esses estudos e obter melhores resultados.
+
+% Paulo:
+% Dados para tabela:
+% - Classes do modelo: pneumonia COVID-19, pneumonia não-COVID-19.
+% - Tipo de exame: TC
+% - Dataset: 1.396 imagens de TC de pulmão (386 Covid-19 e 1.010 Não-Covid-19)
+% - Tipo de validação: validação cruzada de 2 vezes, validação cruzada de 10 vezes. Obtidas em Cohen et al. e Zhao et al e disponível em:  https://github.com/ieee8023/covid-chestxray-dataset),  As imagens Não-Covid-19 foram tiradas do banco de dados de acesso público de pesquisa LIDC-IDRI. A coleção de imagens do Consórcio de Banco de Imagens de Pulmão (LIDC-IDRI) é um banco de dados de tomografias computadorizadas (TC) 
+% O banco de dados LIDC-IDRI contém 1018 casos, cada um dos quais inclui imagens de uma tomografia computadorizada torácica clínica e um arquivo XML associado que registra os resultados de um processo de anotação de imagem em duas fases realizado por quatro radiologistas torácicos experientes. O banco de dados LIDC-IDRI está disponível através do The Cancer Imaging Archive (TCIA), um banco de dados de acesso aberto de imagens médicas para pesquisa em câncer. O banco de dados pode ser acessado no seguinte URL:  https://www.cancerimagingarchive.net/collections/
+% - Resultados de cada métrica de avaliação em cada validação: maior sensibilidade média (0,9197 para 2 vezes, 0,9404 para 10 vezes), especificidade (0,9891 para 2 vezes, 0,9901 para 10 vezes), precisão (0,9473 para 2 vezes, 0,9599 para 10 vezes), pontuação F1 (0,9058 para 2 vezes, 0,9284 para 10 vezes), área sob a curva (0,9888 para 2 vezes, 0,9903 para 10 vezes).
+% - Áreas que podem ser melhoradas: Aumentar o número de dados radiológicos e clínicos de pacientes com COVID-19 e disponibilizá-los para pesquisadores através de acesso aberto para melhorar esses estudos e obter melhores resultados.
+
+% Paulo:
+% Ao final da revisão Atualizar tabela com resumo dos métodos com:
+% -  Classes do modelo (pneumonia de COVID,  pneumonia não COVID,  outras enfermidades, COVID negativo)
+% - Tipo de exame utilizado.
+% - Número de cohorts dos datasets de treinamento por classe.
+% - Tipo de validação (interna, k-fold, externa).
+% - Resultados de cada métrica de avaliação em cada validação (precision, recall, specificity, area under the curve, F1)
+% - O que pode ser melhorado em no máximo duas frases.

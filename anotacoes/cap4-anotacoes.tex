@@ -1,0 +1,96 @@
+% ## Preprocessamento
+
+%  comentário paulo: testar também o desempenho fazendo a normalização dos dados ao invés de padronização, pois não temos garantia que os dados seguem uma distribuição gaussiana, o que é indicado nos casos de padronização.
+
+% - https://www.analyticsvidhya.com/blog/2020/04/feature-scaling-machine-learning-normalization-standardization/
+% - https://medium.com/data-hackers/normalizar-ou-padronizar-as-vari%C3%A1veis-3b619876ccc9
+
+
+% DATASETS
+
+% Mosmed-test: https://drive.google.com/drive/folders/11sZBMy-anznvzSEynWZgEh3Ua5vrp46K
+% Mosmed-1110: https://mosmed.ai/en/datasets/covid19_1110/
+
+
+% ## HPO para definição da rede CNN
+
+% [32m[I 2021-07-10 06:14:47,173][0m Trial 79 finished with value: 0.9056603773584906 and parameters: {'backbone': 'DenseNet201', 'dense_layers': 2, 'dense_units': 128, 'modules': 1, 'lr': 1e-05, 'wbce_weight': 0.5}. Best is trial 79 with value: 0.9056603773584906.[0m
+
+% Split 01 slices metrics
+% loss: 0.217
+% tp: 1629.000
+% fp: 326.000
+% tn: 174.000
+% fn: 91.000
+% accuracy: 0.812
+% precision: 0.833
+% recall: 0.947
+% f1: 0.887
+% auc: 0.787
+
+% Split 01 studies metrics
+% accuracy: 0.842
+% precision: 0.844
+% recall: 0.977
+% f1: 0.906
+% auc: 0.678
+
+% Study statistics: 
+%   Number of finished trials:  200
+%   Number of pruned trials:  0
+%   Number of complete trials:  200
+% Best trial:
+%   Value:  0.9056603773584906
+%   Params: 
+%     backbone: DenseNet201
+%     dense_layers: 2
+%     dense_units: 128
+%     lr: 1e-05
+%     modules: 1
+%     wbce_weight: 0.5
+
+% ## Tempo HPO para chegar na melhor rede CNN
+
+% https://www.gigacalculator.com/calculators/date-time-duration-calculator.php
+% 2021-06-08 01:30:28,899
+% 2021-06-08 02:49:55,007
+% Minutes: 14792
+% Hours: 246
+% Days: 10
+
+% TODO: mostar o gráfico do optuna e explicar um pouco o que ele representa
+
+
+
+
+%  ## HPO para definição de rede neural recorrente
+
+% Best is trial 69 with value: 0.9352113008499146
+
+% %  Matriz de confusao.
+% % loss: 0.139
+% % tp: 166.000
+% % fp: 17.000
+% % tn: 33.000
+% % fn: 6.000
+
+% % https://www.gigacalculator.com/calculators/date-time-duration-calculator.php
+% % Este HPO foi quebrado em três execuções pela agenda da DGX
+
+% % 16-07-2021-16:10
+% % 2021-07-19 12:30
+% % Days: 2
+% % Hours: 68
+% % Minutes: 4100
+
+% % 22-07-2021-15:58
+% % 2021-07-26 13:03
+% % Days: 3
+% % Hours: 93
+% % Minutes: 5585
+
+% % 28-07-2021-23:10
+% % 2021-08-03 09:17
+% % Days: 5
+% % Hours: 130
+% % Minutes: 7807

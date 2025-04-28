@@ -1,0 +1,335 @@
+\chapter{Resultados} \label{cap:cap_resultados}
+
+Neste trabalho estão previstas duas abordagens para validar o desempenho do método proposto: validação interna e externa. Para validação interna, serão usados para testes dados oriundos do mesmo conjunto de dados disponível para treinamento das redes. Na validação externa a ideia é utilizar um conjunto de dados diferente, contendo por exemplo, casos oriundos de outra rede de saúde ou com a presença de outras classes. 
+
+A validação externa na avaliação da rede fornecerá mais clareza sobre a sua capacidade de generalização. Em geral é esperado um resultado inferior na validação externa quando comparado a validação interna em função da dificuldade da rede generalizar por conta das diferenças em relação a população de pacientes e métodos de aquisição das imagens \cite{zech2018variable}.
+
+Em um primeiro momento, o foco da análise deste trabalho foi a validação interna. Após o treinamento e otimização da Rede Neural Convolucional e da Rede Neural Combinada CNN e LSTM, procedimentos descritos nas seções \ref{subsec:cap_metodo_treinamento_cnn} e \ref{subsec:cap_metodo_treinamento_combinada_lstm}, foi realizada uma análise dessas redes, com a validação interna, baseada no conjunto de dados original Mosmed-1110. Neste capítulo são descritas as medidas de desempenho adotadas na avaliação e na sequencia são apresentados os resultados preliminares obtidos com a validação interna.
+
+\section{Medidas de Desempenho}\label{sec:cap_resultados_métricas}
+
+Com o objetivo de avaliar o desempenho do método proposto, foram escolhidas algumas medidas comumente usadas para avaliar o desempenho de classificadores binários para a validação interna e externa das redes criadas durante a experimentação. 
+
+Inicialmente, para apresentar de forma resumida o quão bem sucedida uma rede classifica os exames, é utilizada a matriz de confusão. Um eixo da matriz de confusão indica a classe que a rede predisse, e o outro eixo representa a classe real. Neste trabalho, como se trata de um problema de classificação binária, a matriz de confusão apresenta duas classes, COVID-19 e não COVID-19. 
+
+Na matriz de confusão, é possível identificar os casos que a rede classificou corretamente o exame, seja como COVID-19, que representa os verdadeiros positivos (vp), e os casos em que a rede classificou corretamente os exames como não COVID-19, que são os verdadeiros negativos (vn). 
+
+Na matriz de confusão também são apresentados os casos negativos, ou seja, aqueles em que a rede não classificou corretamente os exames, seja como COVID-19, falsos positivos (fp) ou não COVID-19, falsos negativos (fn). A matriz de confusão é a base para calcular outras medidas de desempenho, como a acurácia, a precisão e a revocação. 
+
+A precisão representa a razão entre o número de predições positivas corretas e o número total de predições positivas, conforme indicado pela Equação \ref{eq:precision}:
+
+\begin{equation} \label{eq:precision}
+precis\tilde{a}o = \frac{vp}{vp+fp}.
+\end{equation}
+
+A revocação, também referida como: sensibilidade, taxa de verdadeiros positivos (tvp) ou em inglês \textit{recall}, corresponde a razão entre as predições verdadeiramente positivas e o total de casos positivos, assim como definido na Equação \ref{eq:sensitivity}:
+
+\begin{equation} \label{eq:sensitivity}
+sensibilidade = \frac{vp}{vp+fn}.
+\end{equation}
+
+Outra medida utilizada frequentemente para avaliar classificadores é a acurácia, que é determinada pelo número total de casos classificados corretamente, dividido pelo número total de casos, assim como indicado pela Equação \ref{eq:accuracy}:
+
+\begin{equation} \label{eq:accuracy}
+acur\acute{a}cia = \frac{vp + vn}{vp + vn + fp + fn}.
+\end{equation}
+
+A acurácia é uma medida útil quando todas as classes são igualmente importantes e a distribuição entre as classes é balanceada, o que geralmente não é o caso quando se deseja detectar doenças. Neste caso a classe positiva, ou seja a que indica a doença tem uma importância maior, e os conjuntos de dados com casos de doenças geralmente são desbalanceados. Como ela é usada na maioria dos trabalhos que aplicam aprendizado profundo para classificar imagens médicas, também foi utilizada neste trabalho como uma referência, mas não a principal medida utilizada para avaliar os resultados.
+
+A área sob a curva ROC (\textit{Receiver Operating Caracteristic)}, também conhecida pela sigla AUC, do inglês \textit{Area Under ROC Curve} é outra medida frequentemente utilizada para avaliar a performance de modelos de classificação que também foi utilizada na avaliação deste trabalho. 
+
+Curvas ROC usam uma combinacão da taxa de verdadeiros positivos (tvp) e da taxa de falsos positivos (tfp), que representa a proporção dos casos negativos preditos incorretamente, para gerar um gráfico que representa o resultado do desempenho da classificação. A taxa de verdadeiros positivos corresponde a revocação, já apresentada anteriormente na Equação \ref{eq:sensitivity}, enquanto que a taxa de falsos positivos é descrita na Equação \ref{eq:fpr}:
+
+\begin{equation} \label{eq:fpr}
+tfp = \frac{fp}{fp+vn}.
+\end{equation}
+
+A AUC pode ser usada apenas quando os classificadores fazem uma predição baseada em uma probabilidade ou pontuação de confiança. A construção da curva ROC é baseada em um procedimento simples. O intervalo de resultados é discretizado em um conjunto de valores utilizado como limiares para a classificação. Por exemplo, se o resultado do classificador é um número real entre 0 e 1, o intervalo pode ser discretizado em valores como: 0,0; 0,1; 0,2; 0,3; 0,4; 0,5; 0,6; 0,7; 0,8; 0,9 e 1,0. Para desenhar a curva cada um dos valores discretizados é utilizado como limiar para determinar o resultado da predição, que será utilizada como base para o cálculo dos valores de TVP e TFP a serem inseridos no gráfico. A AUC fornece uma medida agregada de desempenho em todos os limiares de classificação possíveis. Uma maneira de interpretá-la é considerar a AUC como a probabilidade de que o modelo classifique um exemplo positivo aleatório com um valor maior do que um exemplo negativo aleatório.
+
+A última medida utilizada neste trabalho é a F1-Score, também conhecida como F-Score, ela é uma medida que combina a precisão e a sensibilidade do classificador, calculando a média harmônica dessas duas medidas. O cálculo do F1-Score é definido de acordo com a equação \ref{eq:f1score}.
+
+\begin{equation} \label{eq:f1score}
+\mbox{F1-Score} = 2 * \frac{Precis\tilde{a}o * Sensibilidade}{Precis\tilde{a}o + Sensibilidade}
+\end{equation}
+
+A Sociedade Radiológica da América do Norte (RSNA) publicou um guia chamado CLAIM\cite{mongan2020checklist} (\textit{Checklist for Artificial Intelligence in Medical Imaging}), para orientar autores de trabalhos envolvendo imagens médicas e inteligência artificial na apresentação de suas pesquisas, de forma a promover uma comunicação científica clara, transparente e reprodutível relacionada a aplicação da IA à imagens médicas. Uma das recomendações do CLAIM está relacionado a indicação da incerteza nos valores das medidas de desempenho obtidas na validação das redes neurais, seja utilizando intervalos de confiança ou desvio padrão. 
+
+Inicialmente foi avaliada a possibilidade de usar a estatística Intervalo de Confiança (IC) para quantificar a incerteza das predições das redes na validação interna. O Intervalo de Confiança pode ser calculado de forma simplificada quando se assume uma distribuição Gaussiana para o conjunto de dados, porém quando não há esta garantia, como no caso desse trabalho, o cálculo do IC é realizado com base em \textit{Bootstraping} \cite{mooney1993bootstrapping}, uma técnica para estimar a distribuição amostral de uma estatística. Para realizar a técnica de \textit{Bootstraping}, no entanto, é necessário repetir o treinamento e teste de uma rede centenas de vezes, o que tornou a opção inviável para este trabalho. 
+
+Dado a inviabilidade do uso do Intervalo de Confiança para refletir a incerteza da predição das redes treinadas, foi adotada a validação cruzada interna como forma de melhorar a análise da validação interna, como mencionando anteriormente neste capítulo. Na validação cruzada os resultados correspondem a média e desvio padrão das medidas obtidas no treinamento e validação de cada partição $k$ na validação cruzada interna, técnica explicada na Sub-seção \ref{subsec:cap_resultados_cross_validation}. 
+
+\section{Validação Interna}\label{sec:cap_resultados_internal_validation}
+
+Na validação interna para obter os resultados preliminares foi utilizado o método \textit{holdout} e também a validação cruzada K-Folds \cite{anguita2012k}. A validação cruzada das redes foi realizada utilizando K-folds com $k$ igual a cinco, com o conjunto de dados Mosmed-1110 particionado em $5$ partes.
+
+Durante a validação interna, as redes neurais, CNN e Combinada CNN e LSTM, foram treinadas utilizando os valores dos hiperparâmetros que proporcionaram o melhor desempenho durante a etapa de otimização de hiperparâmetros na classificação dos exames como COVID-19 ou não COVID-19. 
+
+\subsection{Método \textit{Holdout}}\label{subsec:cap_resultados_holdout}
+
+No método \textit{holdout}, o conjunto de dados Mosmed-1110 foi dividido em duas partes: a primeira com 80\% dos dados para treinamento e a segunda com 20\% para testes. Na sequência as redes CNN e Combinada CNN e LSTM foram treinadas utilizando os hiperparâmetros definidos respectivamente nas seções \ref{subsec:cap_metodo_treinamento_cnn} e \ref{subsec:cap_metodo_treinamento_combinada_lstm}. 
+
+Os resultados obtidos na validação interna \textit{holdout} da Rede Neural Convolucional e da Rede Combinada CNN e LSTM proposta por este trabalho são apresentados nesta seção, respectivamente nas Tabelas \ref{table:cnn_holdout_validation_results} e \ref{table:combinada_holdout_validation_results}. Observa-se um  melhor desempenho da rede Combinada CNN e LSTM nas métricas de acurácia, sensibilidade, F1-Score e AUC.
+
+% a fim de ilustrar o desempenho das redes baseado nos melhores hiperparâmetros selecionados durante o HPO e permitir a comparação do desempenho entre uma rede neural CNN e a rede combinada. 
+
+
+% log file: rnn_holdout_evaluate-202204091009.txt
+\begin{table}[ht]
+\centering
+\caption{Validação da rede CNN com método \textit{holdout}} 
+\label{table:cnn_holdout_validation_results}
+\begin{tabularx}{0.95\textwidth} { 
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X   
+%   >{\hsize=2.8cm\raggedright\arraybackslash}X
+  }
+\toprule   
+acurácia &
+precisão &
+sensibilidade &
+F1 Score &
+AUC
+\\ 
+\midrule
+
+% linha 1
+0,811 &
+0,858 &
+0,907 &
+0,881 &
+0,693 
+\\ 
+
+\bottomrule
+
+\end{tabularx}
+\end{table}
+
+% log file: rnn_holdout_evaluate-202204091009.txt
+\begin{table}[ht]
+\centering
+\caption{Validação da rede Combinada CNN e LSTM com método \textit{holdout}}
+\label{table:combinada_holdout_validation_results}
+\begin{tabularx}{0.95\textwidth} { 
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X   
+%   >{\hsize=2.8cm\raggedright\arraybackslash}X
+  }
+\toprule   
+acurácia &
+precisão &
+sensibilidade &
+F1 Score &
+AUC
+\\ 
+\midrule
+
+% linha 1
+0,829 &
+0,856 &
+0,936 &
+0,894 &
+0,851 
+\\ 
+
+\bottomrule
+
+\end{tabularx}
+\end{table}
+
+Para esclarecer as medidas obtidas, as matrizes de confusão da validação com o método \textit{holdout} das redes CNN e Combinada CNN e LSTM são apresentadas respectivamente nas Tabelas \ref{tab:matriz_confusao_cnn_holdout_validation_results} e \ref{tab:matriz_confusao_combinada_holdout_validation_results}.
+
+\begin{table}[htbp]
+\centering
+\caption{Matriz de confusão da rede CNN com método \textit{holdout}}
+\label{tab:matriz_confusao_cnn_holdout_validation_results}
+\begin{tabular}{l|l|c|c|c}
+\multicolumn{2}{c}{}&\multicolumn{2}{c}{Predito}&\\
+\cline{3-4}
+\multicolumn{2}{c|}{}&COVID-19&Não COVID-19&\multicolumn{1}{c}{Total}\\
+\cline{2-4}
+\multirow{2}{*}{Real}& COVID-19 & 157 & 16 & 173\\
+\cline{2-4}
+& Não COVID-19 & 26 & 23 & 49\\
+\cline{2-4}
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{Total} & \multicolumn{1}{c}{183} & \multicolumn{    1}{c}{39} & \multicolumn{1}{c}{222}\\
+\end{tabular}
+\end{table}
+
+
+%  matriz confusao slices
+% loss: 0.221
+% tp: 1557.000
+% fp: 276.000
+% tn: 224.000
+% fn: 163.000
+% accuracy: 0.802
+% precision: 0.849
+% recall: 0.905
+% f1: 0.876
+% auc: 0.800
+
+%  matriz confusao estudos (inferencia)
+% tp: 157
+% fp: 26
+% tn: 23
+% fn: 16
+% accuracy: 0.811
+% precision: 0.858
+% recall: 0.907
+% f1: 0.881
+% auc: 0.693
+% racional:
+% 157 + 26 + 23 + 16 =222
+% acc = (157+ 23) / (157 + 26 + 23 + 16)
+% precision = (157) / (157 + 26)
+% sensibilidade = 157  / (157 + 16)
+
+\begin{table}[h!]
+\centering
+\caption{Matriz de confusão da rede Combinada com método \textit{holdout}}
+\label{tab:matriz_confusao_combinada_holdout_validation_results}
+\begin{tabular}{l|l|c|c|c}
+\multicolumn{2}{c}{}&\multicolumn{2}{c}{Predito}&\\
+\cline{3-4}
+\multicolumn{2}{c|}{}&COVID-19&Não COVID-19&\multicolumn{1}{c}{Total}\\
+\cline{2-4}
+\multirow{2}{*}{Real}& COVID-19 & 161 & 11 & 172\\
+\cline{2-4}
+& Não COVID-19 & 27 & 23 & 50\\
+\cline{2-4}
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{Total} & \multicolumn{1}{c}{188} & \multicolumn{    1}{c}{34} & \multicolumn{1}{c}{222}\\
+\end{tabular}
+\end{table}
+
+%  matriz confusao
+% loss: 0.195
+% tp: 161.000
+% fp: 27.000
+% tn: 23.000
+% fn: 11.000
+
+% \FloatBarrier
+% \newpage
+    
+\subsection{Validação Cruzada}\label{subsec:cap_resultados_cross_validation}
+
+Na validação cruzada o particionamento do conjunto de dados em cinco partes foi realizado de forma estratificada, de maneira que todas as partições apresentassem uma distribuição de exames por classe na mesma proporção que o conjunto de dados como um todo e também não houvesse sobreposição de pacientes entre as partições de treinamento e teste.
+
+Na validação cruzada, com $k=5$, cada rede é treinada e validada cinco vezes, e a cada vez a rede é validada com uma partição $k-1$ diferente e treinada com o subconjunto formado pelas $k-4$ partições restantes. Ao final das cinco validações, o resultado final corresponde a média do desempenho da rede em cada uma das cinco validações. 
+
+Os resultados obtidos na validação interna \textit{holdout} da rede Neural Convolucional e da rede Combinada CNN e LSTM proposta por este trabalho são apresentados nesta seção, respectivamente nas Tabelas \ref{table:cnn_cross_validation_results} e \ref{table:combinada_cross_validation_results}, incluindo a média ($\bar x$) e desvio padrão ($\sigma$) das 5 execuções, lembrando que foi utilizada a validação cruzada com $k=5$.incluindo a média ($\bar x$) e desvio padrão ($\sigma$) das 5 execuções, lembrando que foi utilizada a validação cruzada com $k=5$.
+
+ Na validação cruzada, observa-se um  melhor desempenho da rede Combinada nas métricas de acurácia, precisão, F1-Score e AUC.
+
+% log file: cnn_cross_evaluate-202204042219.txt
+\begin{table}[ht]
+\centering
+\caption{Resultado da validação cruzada interna com a rede CNN} 
+\label{table:cnn_cross_validation_results}
+\begin{tabularx}{0.95\textwidth} { 
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X   
+%   >{\hsize=2.8cm\raggedright\arraybackslash}X
+  }
+\toprule   
+medida &
+acurácia &
+precisão &
+sensibilidade &
+F1 Score &
+AUC
+\\ 
+\midrule
+
+% linha 1
+$\bar x$ &
+0,789 &
+0,791 &
+0,988 &
+0,879 &
+0,553 
+\\ 
+
+% linha 2
+$\sigma$ &
+0,016 &
+0,014 &
+0,008 &
+0,008 &
+0,037 
+\\
+
+\bottomrule
+
+\end{tabularx}
+\end{table}
+
+
+% log file: cnn_cross_evaluate-202204042219.txt
+\begin{table}[ht]
+\centering
+\caption{Resultado da validação cruzada interna da rede Combinada CNN e LSTM}
+\label{table:combinada_cross_validation_results}
+\begin{tabularx}{0.95\textwidth} { 
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X   
+%   >{\hsize=2.8cm\raggedright\arraybackslash}X
+  }
+\toprule   
+medida &
+acurácia &
+precisão &
+sensibilidade &
+F1 Score &
+AUC
+\\ 
+\midrule
+
+% linha 1
+$\bar x$ &
+0,809 &
+0,814 &
+0,977 &
+0,888 &
+0,798 
+\\ 
+
+% linha 2
+$\sigma$ &
+0,027 &
+0,027 &
+0,018 &
+0,014 &
+0,037 
+\\
+
+\bottomrule
+
+\end{tabularx}
+\end{table}
+
+
+\section{Discussão}\label{sec:cap_resultados_discussao}
+
+Os resultados obtidos durante a validação interna da rede CNN foram 0,857, 0,907, 0,881 e 0,693 respectivamente em precisão, sensibilidade, F1 Score e AUC, enquanto que os resultados da Rede Combinada CNN e LSTM foram respectivamente 0,856, 0,936, 0,894 e 0,851. Os resultados obtidos durante a validação interna mostraram que a introdução da rede neural recorrente (LSTM) trouxe um ganho nos resultados na maioria das medidas de desempenho consideradas na avaliação, exceto na precisão que apresentou uma diferença de 0,001, comparado a um cenário com apenas a rede neural convolucional, mostrando novamente um potencial de ganho na aplicação do método proposto. 
+
+Na validação cruzada a rede CNN apresentou 0,791, 0,988, 0,879 e 0,553 respectivamente em precisão, sensibilidade, F1 Score e AUC, enquanto que os resultados da Rede Combinada CNN e LSTM foram respectivamente 0,814, 0,977, 0,888 e 0,798.  Assim como no método \textit{holdout}, os resultados obtidos com a validação cruzada mostraram que a introdução da rede neural recorrente (LSTM) trouxe um ganho nos resultados na maioria das medidas de desempenho consideradas na avaliação, neste caso exceto na sensibilidade que apresentou uma diferença de 0,011, comparado a um cenário com apenas a rede neural convolucional, mostrando um potencial de ganho na aplicação do método proposto. 
+
+Os resultados preliminares mostraram que o método proposto é capaz de prover melhor sensibilidade do que o RT-PCR, considerado o melhor teste para a detecção de COVID-19 na fase inicial da doença e na validação cruzada apresentou desempenho superior à análise de TC realizada por especialistas humanos, tanto na especificidade quanto na precisão. 
+
+Os resultados obtidos na validação interna demonstram potencial do método para ser aplicado na detecção da COVID-19, porém requer um estudo mais aprofundado, considerando uma análise englobando outros conjuntos de dados para testes mais abrangentes e técnicas de explicabilidade, elemento importante para um sistema de apoio a decisão para profissionais de saúde. Também oferece oportunidade de testes combinando tipos de redes neurais mais modernas, como transformers, para extrair características baseadas no aspecto sequencial dos dados.

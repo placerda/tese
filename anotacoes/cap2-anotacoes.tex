@@ -1,0 +1,335 @@
+% ## GERAL
+
+% Lista de Cursos Gratuitos Deep Learning:
+% https://machinelearningmastery.com/deep-learning-courses/
+
+
+
+
+% ## FUNDAMENTOS PMC
+
+%  Links da internet sobre PMC:
+%  https://edisciplinas.usp.br/pluginfile.php/4445475/mod_resource/content/1/rn_5_mlp_1.pdf
+%  http://www.fatecrp.edu.br/WorkTec/edicoes/2020-1/trabalhos/I-Worktec-Daniel_Tiezzi.pdf
+%  http://www.sel.eesc.usp.br/lasi/terra/cursos/SEL0362/perc.pdf
+%  https://developers.google.com/machine-learning/glossary/#deep_model
+
+
+
+
+% ## FUNDAMENTOS Aprendizado de máquina e aprendizado profundo:
+
+% The talks at the Deep Learning School on September 24/25, 2016 were amazing. I clipped out individual talks  from the full live streams and provided links to each below in case that's useful for people who want to watch specific talks several times (like I do). Please check out the official website (http://www.bayareadlschool.org) and full live streams below.
+
+% Having read, watched, and presented deep learning material over the past few years, I have to say that this is one of the best collection of introductory deep learning talks I've yet encountered. Here are links to the individual talks and the full live streams for the two days:
+
+% 1. Foundations of Deep Learning (Hugo Larochelle, Twitter) - https://youtu.be/zij_FTbJHsk
+% 2. Deep Learning for Computer Vision (Andrej Karpathy, OpenAI) - https://youtu.be/u6aEYuemt0M
+% 3. Deep Learning for Natural Language Processing (Richard Socher, Salesforce) - https://youtu.be/oGk1v1jQITw
+% 4. TensorFlow Tutorial (Sherry Moore, Google Brain) - https://youtu.be/Ejec3ID_h0w
+% 5. Foundations of Unsupervised Deep Learning (Ruslan Salakhutdinov, CMU) - https://youtu.be/rK6bchqeaN8
+% 6. Nuts and Bolts of Applying Deep Learning (Andrew Ng) - https://youtu.be/F1ka6a13S9I
+% 7. Deep Reinforcement Learning (John Schulman, OpenAI) - https://youtu.be/PtAIh9KSnjo
+% 8. Theano Tutorial (Pascal Lamblin, MILA) - https://youtu.be/OU8I1oJ9HhI
+% 9. Deep Learning for Speech Recognition (Adam Coates, Baidu) - https://youtu.be/g-sndkf7mCs
+% 10. Torch Tutorial (Alex Wiltschko, Twitter) - https://youtu.be/L1sHcj3qDNc
+% 11. Sequence to Sequence Deep Learning (Quoc Le, Google) - https://youtu.be/G5RY_SUJih4
+% 12. Foundations and Challenges of Deep Learning (Yoshua Bengio) - https://youtu.be/11rsu_WwZTc
+
+% Em aprendizado de máquina, busca-se um método que seja capaz de explicar os dados, onde por exemplo, dado uma entrada $x$ seja possível mapear para uma saída $y$. Se o valor de $y$ é conhecido de antemão, podemos dizer que trata-se de um problema supervisionado. Nesse sentido, pretende-se conhecer a função $f'$ que mais se aproxime da função $f$ que explique esse mapeamento, dado os valores conhecidos de $y$.
+
+% $L$ é a função de custo a ser minimizada, podemos pensar como o erro entre o $y'$ predito pela função $f'$ ajustada e os valores reais de $y$. Através do processo de aprendizado, esse erro vai diminuindo e obtemos assim o melhor ajuste para $f'$
+
+% Para casos onde o espaço não é linearmente separável, pode-se modificar a arquitetura da ANN para que seja possível aprender funções mais complexas e quebrar essa restrição da linearidade dos dados. Segundo \cite{cybenko1989approximation} a implementação de duas camadas intermediárias torna possível a aproximação de qualquer função, o que faz das DNN uma opção mais atrativa. Pelo fato dessa arquitetura conseguir capturar funções mais complexas, isso acaba por introduzir outros problemas, como por exemplo o \textit{overfitting} e uma demanda por poder computacional mais elevada \cite{carvalho2011inteligencia}.
+
+% À medida que a rede torna-se mais profundo, nota-se que a capacidade de aprendizado aumenta, e o ajuste da função $f'$ vai ficando cada vez melhor. Cada neurônio da camada inicial aprende uma função que define um hiperplano capaz de separar o espaço, dessa forma, um neurônio de uma camada subsequente combina o grupo de hiperplanos aprendidos pelos neurônios das camadas anteriores, formando regiões convexas. Na última camada temos a combinação dessas regiões convexas em regiões de formato arbitrário. \cite{carvalho2011inteligencia}.
+
+% Normalmente utiliza-se funções não lineares nas DNNs. O motivo para isso é que esse tipo de função permite que mapeamentos ($ x \mapsto y$) mais complexos possam ser aprendidos ao longo das camadas. Do contrário, acabaríamos por ter uma combinação linear das saídas das outras camadas intermediárias, e no final, teríamos a mesma restrição, ou seja, uma ANN. A saída de um neurônio é dada pela função de ativação e um 0 nesse caso, implica que o estímulo não será passado adiante.
+
+
+
+
+% ## FUNDAMENTOS CNN
+
+% Conteúdo redes neurais convolucionais. 
+% https://www.youtube.com/watch?v=vT1JzLTH4G4 (curso stanford)
+% DenseNets
+% they alleviate the vanishing-gradient problem, strengthen feature propagation, encourage fea- ture reuse, and substantially reduce the number ofparame- ters. We evaluate our proposed architecture on four highly competitive object recognition benchmark tasks (CIFAR-10, CIFAR-100, SVHN, and ImageNet). 
+%  Explicando Densenets:
+% https://towardsdatascience.com/densenet-2810936aeebb
+
+%  Resumo LENET: https://www.analyticssteps.com/blogs/lenet-5-tutorial-architecture-features-and-importance
+
+% Uma imagem em geral apresenta as dimensões altura, largura e profundidade. A profundidade representa os canais, e em geral uma imagem tem um canal quando é representada em tons de cinza ou três canais quando é colorida, apresentando um canal para cada cor primária (RGB). Para cada par de coordenadas altura e largura existe um ponto com uma cor definida de acordo com a combinação das intensidades dos canais naquela altura e largura, este ponto é chamado de \textit{pixel}. 
+
+% Com isso, uma única imagem de tamanho 1000x1000x3 apresenta um milhão de pixes e como cada \textit{pixel} é representado por três canais, esta imagem é representada por uma estrutura com 3 milhões de elementos. Se uma PMC apresentar 1000 neurônios em sua primeira camada, isso corresponderá a 3 bilhões de pesos, somente na primeira camada, tornando assim o processo de treinamento e inferência desta rede bem custoso. 
+
+% Com a aplicação de sucessivas camadas de convolução, o tamanho da representação da imagem é sucessivamente reduzida e consequentemente as informações dos \textit{pixels} localizados próximo ao perímetro da representação vão desaparecendo. Uma forma de resolver esse problema é usar o \textit{padding} para aumentar a representação da imagem, estendendo normalmente com zeros as bordas. Dessa forma, a convolução levará em consideração essa nova dimensão da imagem, fazendo com que o resultado da representação final também aumente. \textit{Padding} igual a 1 significa aumentar 2 \textit{pixels} em $x$ e $y$.
+
+% O \textit{stride} é o parâmetro responsável pelo deslizamento do filtro aplicado na operação de convolução. Seu valor é dado em \textit{pixels} e o valor padrão é de 1 \textit{pixel}, ou seja, o filtro se desloca 1 \textit{pixel} em $x$ (comprimento) e 1 \textit{pixel} em $y$ (altura). Dessa forma, quanto maior o deslizamento, maior será a compressão aplicada à imagem original. Além disso, o \textit{stride} também pode ser considerado um hiperparâmetro da rede. Para o caso geral, as dimensões da representação da imagem serão dadas pela equação:
+
+% O papel do \textit{pooling} é servir como uma operação de agrupamento. Não existem parâmetros treináveis no \textit{pooling}, mas sua importância está no fato de que esse tipo de operação reduz a sensibilidade das camadas convolucionais ao efeito da localização e das representações espacialmente reduzidas. Assim como na camada convolucional, a operação de \textit{pooling} usa um \text{kernel} que quando aplicado reduz o tamanho da imagem, da mesma forma que na convolução, porém a operação de \textit{pooling} é realizada de forma diferente. Exitem basicamente dois tipos de \textit{pooling}, o \textit{average pooling} e o \textit{maximum pooling}.
+
+% \textit{Flatten} ou "operação de achatamento" é um recurso utilizado para achatar a saída de uma camada em um vetor unidimensional. Esse achatamento funciona como uma entrada padrão de uma DNN. Dessa forma, pode-se passar para uma camada densa o resultado desse achatamento. 
+
+% Os componentes principais de uma rede neural convolucional, como sugerido pelo nome, são as camadas em que as convoluções são realizadas. A camada de convolução é determinada basicamente por dois parâmetros: o tamanho e a quantidade de filtros. 
+
+% Uma rede utilizada em aplicações reais, tipicamente terá diversas camadas de convolução, além de outros tipos de camadas já mencionadas anteriormente, como por exemplo, \textit{pooling}.
+
+% O achatamento é um recurso comumente utilizado em redes neurais convolucionais para permitir utilizar a saída da camada convolucional como entrada em camadas densas, do mesmo tipo das camadas da PMC.
+
+% \begin{figure}[!ht]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{capitulos/figuras/fun_cnn_classica.pdf}
+%     \caption{Exemplo de rede neural convolucional.}
+%     \label{fig:fun_cnn_classica}
+% \end{figure}
+
+% A camada de entrada corresponde a uma imagem em tons de cinza, com 28 \textit{pixels} de largura e altura. Diferente das imagens coloridas, que têm três canais para representar as cores, esta tem apenas um para os tons de cinza, portanto a camada de entrada tem as dimensões 28x28x1. A camada de convolução é caracterizada pela convolução de 6 filtros de tamanho 5, seguidos da aplicação de uma função de ativação, produzindo como saída uma ativação com dimensões 26x26x6.
+
+% Em geral, a ReLU é a função de ativação escolhida para a camada de convolução, principalmente por tornar o aprendizado da rede mais rápido \cite{krizhevsky2012imagenet}, além de evitar o problema conhecido como \textit{vanishing gradient} durante o procedimento de \textit{backpropagation} em redes profundos com muitas camadas. O aprendizado da rede e a técnica de \textit{backpropagation} são tratados na seção \ref{sec:treinando-redes-neurais}.
+
+% A saída da camada de convolução, com dimensões 26x26x6 é então achatada em um vetor com apenas uma dimensão e tamanho 4056. Este vetor será utilizado como entrada em uma camada densa de 10 unidades, e a saída será dada pela função de ativação \ref{softmax}.
+
+
+% A função de ativação aplicada à última camada densa geralmente é diferente das outras, esta função precisa ser escolhida de acordo com a tarefa. No exemplo, como se trata de uma tarefa de classificação multiclasse, a função de ativação adequada é a softmax, que normaliza os valores de saída da última camada densa como probabilidades da classe de destino, onde cada valor varia entre 0 e 1 e todos os valores somam 1.
+
+% A rede descrita anteriormente, embora útil para entendimento da arquitetura de uma CNN, é muito simples para realizar até as tarefas mais básicas de classificação de imagens. Portanto é interessante comentar outras arquiteturas de rede. Uma das primeiras redes convolucionais publicadas, a Lenet-5\cite{lecun1998gradient}, foi utilizada para a classificação de dígitos manuscritos do dataset \cite{deng2012mnist}. 
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[scale=0.4]{imagens/paulo/pl-lenet-5.png}
+%     \caption{Arquitetura da rede Lenet-5.}
+%     \label{fig:pl_lenet_5}
+% \end{figure}
+
+% pequena com uma camada convolucional apenas, conforme ilustrado na Figura \ref{fig:fun_cnn_classica}. A rede de exemplo tem como finalidade classificar imagens de dígitos entre 0 e 9. Ela começa com uma camada de entrada, seguida de uma camada de convolução com seis filtros de tamanho 5x5. A saída da camada de convolução é achatada em um vetor coluna, como entrada para uma camada densa com função de ativação \textit{softmax} para produzir o resultado da classificação.
+
+
+
+
+% FUNDAMENTOS LSTM
+
+% Conteúdo redes neurais recorrentes. 
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/
+% http://karpathy.github.io/2015/05/21/rnn-effectiveness/
+% https://www.youtube.com/watch?v=6niqTuYFZLQ (Stanford Lecture)
+% http://videolectures.net/deeplearning2016_bengio_neural_networks/
+
+% % https://karpathy.github.io/2015/05/21/rnn-effectiveness/
+% % https://medium.com/swlh/a-simple-overview-of-rnn-lstm-and-attention-mechanism-9e844763d07b
+% % https://medium.com/@humble_bee/rnn-recurrent-neural-networks-lstm-842ba7205bbf
+
+% Não está claro como uma rede neural tradicional poderia usar seu raciocínio sobre eventos anteriores no filme para informar os posteriores.
+
+% Redes neurais recorrentes resolvem esse problema. São redes com loops, permitindo que as informações persistam.
+
+% No NN tradicional, a saída nunca é realimentada na rede; apenas o erro se propaga de volta para a rede. Aqui, as futuras entradas da rede são derivadas das saídas anteriores. É uma distinção importante.
+
+% Traditional neural network could not use previous information to predict the future information ,if you are talking about testing. because there is no link between previous input and this input. Am I right.
+
+% Mainly correct, but I’d substitute “traditional” with stateless hence with no memory.
+% For example, classical CNN is stateless, LSTM is stateful but in this case the “memory effect” is not created by means of recurrent connections but with specific “memory cells” (as it is explained in this post)
+
+% Imagem do neuronio com o loop
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-rolled.png
+
+% Rede "desenrolada"
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-unrolled.png
+
+% Se você olhar o diagrama desenrolado, verá que cada neurônio tem duas saídas. Um atua como uma entrada para o próximo neurônio e o outro atua como uma saída para aquela entrada temporal específica. Em outras palavras, a entrada Xt vai para o neurônio At e duas saídas são produzidas, uma especificamente para ir para o neurônio At + 1 e a outra seria Ht. Espero que ajude ... Levei um tempo para entender no começo.
+
+% Essa natureza em cadeia revela que as redes neurais recorrentes estão intimamente relacionadas a sequências e listas. Eles são a arquitetura natural da rede neural a ser usada para esses dados.
+
+% O problema das Dependências de longo prazo foi explorado em profundidade por Hochreiter (1991) [alemão] e Bengio, et al. (1994), que encontrou algumas razões fundamentais pelas quais isso pode ser difícil.
+
+% Long term dependency issue, occours because of vanishing or exploding gradients. [On the difficulty of training Recurrent Neural Networks] on training training difficulty of RNNs
+
+% Redes de memória de longo prazo - geralmente chamadas apenas de “LSTMs” - são um tipo especial de RNN, capaz de aprender dependências de longo prazo. Eles foram introduzidos por Hochreiter & Schmidhuber (1997)
+
+% Os LSTMs são projetados explicitamente para evitar o problema de dependência de longo prazo. Lembrar-se de informações por longos períodos de tempo é praticamente o comportamento padrão, e não algo que eles lutam para aprender!
+
+% Todas as redes neurais recorrentes têm a forma de uma cadeia de módulos repetidos de rede neural. Em RNNs padrão, este módulo de repetição terá uma estrutura muito simples, como uma única camada de tanh.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png
+
+% Os LSTMs também têm essa estrutura em cadeia, mas o módulo de repetição tem uma estrutura diferente. Em vez de ter uma única camada de rede neural, existem quatro, interagindo de uma maneira muito especial.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png
+
+% No diagrama acima, cada linha carrega um vetor inteiro, da saída de um nó às entradas de outros. Os círculos rosa representam operações pontuais, como adição de vetor, enquanto as caixas amarelas são camadas de rede neural aprendidas. A fusão de linhas denota concatenação, enquanto uma bifurcação de linha denota seu conteúdo sendo copiado e as cópias indo para diferentes locais
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM2-notation.png
+
+% Visão geral de uma célula LSTM
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-C-line.png
+
+% A chave para os LSTMs é o estado da célula, a linha horizontal que atravessa a parte superior do diagrama.
+
+% O estado da célula é como uma correia transportadora. Ele percorre toda a cadeia, com apenas algumas interações lineares menores. É muito fácil que as informações fluam sem alterações.
+
+% The long term dependency problem is that, when you have larger network through time, the gradient decays quickly during back propagation. So training a RNN having long unfolding in time becomes impossible. But LSTM avoids this decay of gradient problem by allowing you to make a super highway (cell states) through time, these highways allow the gradient to freely flow backward in time.
+
+
+% Os portões são uma forma opcional de permitir a passagem de informações. Eles são compostos de uma camada de rede neural sigmóide e uma operação de multiplicação pontual.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-gate.png
+
+% A camada sigmóide emite números entre zero e um, descrevendo quanto de cada componente deve ser deixado passar. Um valor de zero significa "não deixe nada passar", enquanto um valor de um significa "deixe tudo passar!"
+
+% Um LSTM tem três dessas portas, para proteger e controlar o estado da célula.
+
+% A primeira etapa em nosso LSTM é decidir quais informações vamos jogar fora do estado da célula. Essa decisão é tomada por uma camada sigmóide chamada "camada de portão para esquecer". Ele olha para ht − 1 e xt, e produz um número entre 0 e 1 para cada número no estado de célula Ct − 1. Um 1 representa "manter isso completamente", enquanto um 0 representa "livrar-se completamente disso".
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-f.png
+
+% A próxima etapa é decidir quais novas informações vamos armazenar no estado da célula. Isso tem duas partes. Primeiro, uma camada sigmóide chamada "camada de porta de entrada" decide quais valores iremos atualizar. Em seguida, uma camada tanh cria um vetor de novos valores candidatos, C̃ t, que podem ser adicionados ao estado. Na próxima etapa, combinaremos esses dois para criar uma atualização do estado.
+
+% No exemplo do nosso modelo de linguagem, gostaríamos de adicionar o gênero do novo sujeito ao estado da célula, para substituir o antigo que estamos esquecendo.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-i.png
+
+% Agora é hora de atualizar o antigo estado da célula, Ct − 1, para o novo estado da célula Ct. As etapas anteriores já decidiram o que fazer, só precisamos fazer de fato.
+
+% Multiplicamos o antigo estado por ft, esquecendo as coisas que decidimos esquecer antes. Em seguida, adicionamos ∗ C̃ t. Estes são os novos valores candidatos, dimensionados de acordo com o quanto decidimos atualizar cada valor de estado.
+
+% No caso do modelo de linguagem, é aqui que colocamos as informações sobre o gênero do sujeito antigo e adicionamos as novas, conforme decidimos nas etapas anteriores.
+
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-C.png
+
+% Finalmente, precisamos decidir o que iremos produzir. Essa saída será baseada em nosso estado de célula, mas será uma versão filtrada. Primeiro, executamos uma camada sigmóide que decide quais partes do estado da célula iremos produzir. Em seguida, colocamos o estado da célula por meio de tanh (para empurrar os valores para estar entre -1 e 1) e multiplicá-lo pela saída da porta sigmóide, de modo que apenas produzamos as partes que decidimos.
+
+% Para o exemplo do modelo de linguagem, uma vez que acabou de ver um assunto, ele pode querer gerar informações relevantes para um verbo, caso seja o que está por vir. Por exemplo, pode resultar se o sujeito é singular ou plural, de modo que saibamos em que forma um verbo deve ser conjugado se isso for o que vem a seguir.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-o.png
+
+
+% h_t, C_t and \tilde{C}_t share the same dimensionality.
+% The size of \tilde{C}_t comes directly from the 'hight' of W_C matrix (check \tilde{C}_t definition, above). W_C's 'width' is instead equal to size(h_t) + size(x_t).
+
+
+% [VARIACOES]
+
+% Uma variação um pouco mais dramática no LSTM é a Gated Recurrent Unit, ou GRU, introduzida por Cho, et al. (2014). Ele combina as portas de esquecer e de entrada em uma única "porta de atualização". Ele também mescla o estado da célula e o estado oculto e faz algumas outras alterações. O modelo resultante é mais simples do que os modelos LSTM padrão e tem se tornado cada vez mais popular.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png
+
+% Qual dessas variantes é a melhor? As diferenças importam? Greff, et al. (2015) fazem uma boa comparação de variantes populares, descobrindo que elas são quase iguais. Jozefowicz, et al. (2015) testaram mais de dez mil arquiteturas RNN, encontrando algumas que funcionaram melhor do que LSTMs em certas tarefas.
+
+% http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png
+
+% 1. http://proceedings.mlr.press/v37/jozefowicz15.pdf
+
+% "É importante ressaltar que adicionar um viés de tamanho 1 melhorou significativamente o desempenho do LSTM nas tarefas em que ficou para trás o GRU e o MUT1. Portanto, recomendamos adicionar um viés
+% de 1 para a porta de esquecimento de cada LSTM em cada aplicativo;
+% é fácil de fazer, muitas vezes resulta em melhor desempenho em nosso
+% tarefas. Este ajuste é a simples melhoria em relação ao
+% LSTM que pretendemos descobrir."
+
+% 2. https://arxiv.org/pdf/1503.04069.pdf
+
+% Este artigo relata os resultados de um estudo em grande escala sobre
+% variantes da arquitetura LSTM. Concluímos que o
+% arquitetura LSTM mais comumente usada (vanilla LSTM)
+% executa razoavelmente bem em vários conjuntos de dados. Nenhum dos oito
+% as modificações investigadas melhoram significativamente o desempenho
+
+% No entanto, certas modificações, como o acoplamento da entrada e esqueça os portões (CIFG) ou removendo as conexões do olho mágico (NP)
+% LSTMs simplificados em nossos experimentos sem significativamente
+% diminuindo o desempenho. Essas duas variantes também são atraentes
+% porque eles reduzem o número de parâmetros e o
+% custo computacional do LSTM.
+
+% A porta de esquecimento e a função de ativação de saída são os
+% componentes mais críticos do bloco LSTM. Removendo qualquer
+% deles prejudica significativamente o desempenho. Nós hipotetizamos
+% que a função de ativação de saída é necessária para evitar o
+% estado de célula ilimitado para se propagar pela rede e
+% desestabilizam o aprendizado. Isso explicaria por que a variante LSTM
+% GRU pode funcionar razoavelmente bem sem ele: seu estado de célula é limitado por causa do acoplamento da entrada e da porta de esquecimento
+
+
+
+
+%  FUNDAMENTOS DETECÇÃO DE OBJETOS
+
+% referência: 
+% https://www.youtube.com/watch?v=nDPWywWRIRo&list=PLkRLdi-c79HJC0j368g_pKg7-mDwcSf2H [Stanford]
+
+
+
+%  FUNDAMENTOS Mecanismos de Atenção e Transformers
+% 
+% https://arxiv.org/abs/2012.06399
+% https://github.com/Chiaraplizz/ST-TR
+% https://alcinos.github.io/detr_page/
+
+
+
+
+% FUNDAMENTOS FUNCOES DE ATIVACAO
+
+% \subsection{Funções de Ativação}\label{subsec:cap_funcoes_ativacao}
+
+% A função \textit{sigmoidal} é um tipo de função de ativação não linear conhecida também como função de achatamento, pois limita os valores de saída da função entre $(0,1)$. Sua definição é dada por $\sigma(x) = \frac{1}{1+e^{-x}}$
+
+% O objetivo da função \textit{softmax} é transformar um vetor de $k$ valores reais em um vetor de $k$ valores reais que somam $1$. O vetor de entrada pode ser positivo, negativo, zero ou maior do que $1$. Essa função é usada na última camada, também conhecida como camada de classificação. Cada classe possui uma probabilidade associada, onde valores muito negativos são transformados em probabilidades pequenas e valores muito positivos em probabilidade grandes. Dessa forma, as classes devem ser mutualmente exclusivas. A função é definida pela equação \ref{softmax}, onde $x$ é o vetor de valores reais, $k$ representa o número de classes, $x_i$ são os elementos do vetor $x$.
+
+% $softmax(\underset{x}{\rightarrow})_i = \frac{e^{x_i}}{\sum_{j=1}^{k}e^{x_j}}$
+
+% \begin{equation}
+%     \label{softmax}
+%     softmax(x) = \frac{e^{x_i}}{\sum_{j=1}^{k}e^{x_j}}
+% \end{equation}
+
+% Assim como a função \textit{sigmoidal}, a função \textit{tahn} (\textit{Hyperbolic Tangent}) também achata a saída da função dentro do intervalo entre (-1,1). A função é definida por $tahn(x) = \frac{1 - exp(-2x)}{1 + exp(-2x)}$.
+
+% % \begin{equation}
+% %     tahn(x) = \frac{1 - exp(-2x)}{1 + exp(-2x)}
+% % \end{equation}
+
+% ReLU (do inglês \textit{Rectified Linear Function}) é uma função não linear que retém somente a parte positiva, descartando a parte negativa, que assume então o valor de 0. Formalmente é definida como o máximo entre $(0,x)$. Por ser uma transformação não linear muito simples, possui também vantagens quanto a performance. A ReLU é definida pela seguinte equação $ReLU(x) = max(0, x)$.
+
+%  TRANSFORMERS
+% referencias:
+% Illustrated Guide to Transformers Neural Network: A step by step explanation: https://www.youtube.com/watch?v=4Bdc55j80l8
+
+% aplicações de classificação com transformers:
+% https://keras.io/examples/nlp/text_classification_with_transformer/ 
+% https://towardsdatascience.com/the-time-series-transformer-2a521a0efad3
+% https://keras.io/examples/timeseries/timeseries_transformer_classification/
+
+% FUNDAMENTOS TREINAMENTO
+
+% % LR:
+% % https://machinelearningmastery.com/learning-rate-for-deep-learning-neural-networks/
+% % It is common to grid search learning rates on a log scale from 0.1 to 10^-5 or 10^-6.
+% % Typically, a grid search involves picking values approximately on a logarithmic scale, e.g., a learning rate taken within the set {.1, .01, 10−3, 10−4 , 10−5}
+
+% %  Batch Size:
+% % https://machinelearningmastery.com/how-to-control-the-speed-and-stability-of-training-neural-networks-with-gradient-descent-batch-size/
+% % … [batch size] is typically chosen between 1 and a few hundreds, e.g. [batch size] = 32 is a good default value
+% % — Practical recommendations for gradient-based training of deep architectures, 2012.
+
+% Por último, o resultado da função de ativação $A$ servirá de input para a função de perda a ser otimizada, também conhecida como função de perda (\textit{loss function}), conforme a equação $L\left(A,\ Y\right)$.
+
+% $L$ é a função de custo a ser minimizada, podemos pensar como o erro entre o $y'$ predito pela função $f'$ ajustada e os valores reais de $y$. Através do processo de aprendizado, esse erro vai diminuindo e obtemos assim o melhor ajuste para $f'$
+
+
+
+
+%  FUNDAMENTOS TOMOGRAFIA
+
+% https://howradiologyworks.com/ctgenerations/
+% TODO: INCLUIR FIGURA ADAPTADA.
+
+
+
+
+%  FUNDAMENTOS ACHADOS DA COVID
+
+% https://www.abennacional.org.br/site/wp-content/uploads/2020/05/Journal_Infection_Control.pdf

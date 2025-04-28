@@ -1,0 +1,386 @@
+\chapter{Materiais e Método} \label{cap:cap_metodo}
+
+Este capítulo apresenta a descrição do método proposto, iniciando com uma visão geral, na qual é apresentado o método como um processo macro, cujas etapas são descritas na sequência.
+
+\section{Visão Geral do Método}\label{sec:cap_metodo_visao_geral}
+
+O método proposto tem como objetivo, a partir de um exame de tomografia de tórax, classificá-lo como COVID-19 positivo ou negativo. Este método está dividido em quatro grande etapas, como ilustrado na Figura \ref{fig:met_visao_geral}. As etapas são executadas de forma sequencial, uma após a outra, ao receber como entrada um exame de tomografia de tórax. 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/met_visao_geral.pdf}
+\caption{Visão geral do método.}
+\label{fig:met_visao_geral}
+\end{figure}
+
+Inicialmente é realizado o pré-processamento do exame de tomografia. Nesta etapa um conjunto de cortes do exame é selecionado e suas imagens passam por um pré-processamento antes de serem as entradas da rede neural utilizada pelo método. Na segunda etapa, utilizando-se camadas convolucionais, é realizada a extração de características espaciais de cada um dos cortes da tomografia que vieram da etapa de pre-processamento. As características espaciais de cada corte são representadas em um vetor de uma dimensão, chamado vetor de incorporação ou \textit{embeddings}. 
+
+Na terceira etapa, os vetores de \textit{embeddings} relativos aos cortes selecionados na etapa de pré-processamento são então agrupados sequencialmente para processamento por camadas de rede especializada em dados sequenciais, LSTM ou Transformers, responsável por extrair características baseadas na informação da sequência de vetores. Na etapa de classificação, a saída da última camada da rede para dados sequenciais é então utilizada como entrada para uma sucessão de camadas densas, ou completamente conectadas, cuja última camada utiliza uma função de ativação sigmoide, indicando o resultado da classificação com um valor real entre 0 e 1, onde quanto maior o número, maior a chance do exame ser de um paciente com COVID-19.
+
+\subsection{Pre-processamento das Imagens}\label{subsec:cap_metodo_preprocessamento}
+
+Um exame de tomografia de tórax produz uma sequência de imagens, cada uma correspondente a um corte no plano axial na região do tórax. Cada corte é uma imagem em tons de cinza, em que os \textit{pixels} têm suas intensidades representadas em unidades Hounsfield, ou U.H. que em geral variam entre -1000 e 1000, dependendo do equipamento utilizado na aquisição das imagens. O valor em U.H. indica a densidade da matéria na posição do tórax representada pelo respectivo \textit{pixel}, sendo o equipamento calibrado para que a água tenha o valor de 0 U.H. e o ar -1000 U.H.
+
+O pré-processamento dos exames começa com a seleção de um subconjunto de cortes do exame de tomografia. Cada exame de tomografia de tórax apresenta um número variado de cortes e em geral contém centenas deles. Como a área dos pulmões se concentra na área central das tomografias, é selecionado automaticamente o conjunto dos 10 cortes centrais, concentrando o treinamento e inferência da rede neural nos cortes do exame que apresentam uma grande quantidade de \textit{pixels} correspondentes às áreas dos pulmões. A quantidade de cortes selecionados por exame é a mesma utilizada como tamanho padrão da sequência de entrada na extração de características sequenciais descrita na seção \ref{subsec:cap_metodo_carac_sequenciais}.
+
+Após a seleção dos cortes centrais do exame, é realizado o redimensionamento das imagens correspondente a cada corte da tomografia, para que eles fiquem com o tamanho esperado pela rede neural convolucional responsável pela extração das características espaciais. As características e informações adicionais relacionadas a rede neural convolucional serão descritas na próxima seção, porém vale mencionar que ela recebe como entrada cada corte individualmente com três dimensões, em que cada dimensão corresponde respectivamente a altura, largura e número de canais. 
+
+Como a rede neural convolucional utilizada é baseada em uma rede pré-treinada previamente com o conjunto de dados Imagenet \cite{Russakovsky2014}, disponível na biblioteca Keras \cite{chollet2015keras}, o tamanho esperado destas dimensões é (224, 224, 3). A rede pre-treinada é usada como base para fazer a transferência de conhecimento para a rede neural utilizada na etapa de extração de características espaciais.
+
+Com a finalidade de destacar nos cortes de entrada os tons de cinza relacionados aos pulmões, após o redimensionamento das cortes, é aplicada uma operação pontual em que os valores das intensidades de cada pixel dos cortes são truncados com base na janela de pulmão \cite{seeram2015computed}, com \textit{window length} igual a -600 e \textit{window width} 1500. O valor mínimo e valor máximo da operação são calculados com base nas Equações \ref{eq:min_value} e \ref{eq:max_value}. Esta etapa tem como objetivo reduzir nas imagens de entrada a quantidade de informações que não são relacionadas aos pulmões, proporcionando um melhor desempenho para a rede neural convolucional na extração de características associadas a estes órgãos.
+
+\begin{equation} \label{eq:min_value}
+valor\ minimo = window\ length - \frac{window\ width}{2}
+\end{equation}
+
+\begin{equation} \label{eq:max_value}
+valor\ maximo = window\ length + \frac{window\ width}{2}
+\end{equation}
+
+Após o truncamento das intensidades, as imagens são padronizadas com a finalidade de se obter melhores resultados na classificação e também tornar o processo de treinamento da rede mais eficiente \cite{sola1997importance}. A padronização do corte é realizada através da técnica z-score, cuja fórmula é descrita na Equação \ref{eq:z_score}, em que $z$ representa a nova intensidade do \textit{pixel}, $x$ corresponde ao seu valor original, e $\mu$ e $\sigma$ equivalem respectivamente a média e desvio padrão dos \textit{pixels} da imagem.
+
+\begin{equation} \label{eq:z_score}
+z = \frac{x - \mu }{\sigma}
+\end{equation}
+
+\subsection{Extração das Características Espaciais}\label{subsec:cap_metodo_carac_espaciais}
+
+A etapa de extração de características espaciais utiliza uma rede neural convolucional para extrair as características espaciais de cada uma das imagens da tomografia, através dos filtros convolucionais de suas camadas e ao final produz um vetor com uma única dimensão, chamado vetor de incorporação ou simplesmente \textit{embedding}. A rede neural convolucional utilizada nesta etapa é treinada com base em um problema de classificação da imagem do corte da tomografia como COVID-19 ou não COVID-19. 
+
+O objetivo desta etapa é que ela seja capaz de criar um \textit{embedding} que represente em um vetor de poucas dimensões as características espaciais relevantes para a classificação da imagem com relação a doença. Este vetor será então utilizado na próxima etapa para extrair características sequenciais através de uma rede neural recorrente.  A utilização de um vetor com dimensões reduzidas proporcionará maior rapidez no treinamento da rede neural recorrente e também redução nas chances de sobreajuste.
+
+Para um melhor desempenho na tarefa de classificação das imagens como COVID-19 ou não COVID-19, a rede neural utilizada para extração de características realiza transferência de conhecimento a partir de uma rede Densenet-201 \cite{huang2017densely}, pré-treinada na tarefa de classificação de imagens naturais Imagenet. 
+
+A Figura \ref{fig:met_rede_cnn} ilustra a rede neural convolucional utilizada. A entrada da CNN é uma imagem com três dimensões (224, 244, 3), preprocessada conforme descrito na Seção \ref{subsec:cap_metodo_preprocessamento}. A primeira parte da rede é uma Densenet-201 pré-treinada para transferência de conhecimento com base no conjunto de dados Imagenet. Esta seção é utilizada como a base convolucional, ou \textit{backbone}, parte da rede responsável pela extração de características de mais baixo nível das imagens, como linhas e bordas.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/met_cnn_architecture.pdf}
+\caption{Rede neural convolucional.}
+\label{fig:met_rede_cnn}
+\end{figure}
+
+A saída da base convolucional é uma matriz de dimensões (7, 7, 1920) correspondente a saída do último bloco convolucional da Densenet. A saída do \textit{backbone} é conectada a um modulo Inception \cite{szegedy2017inception} que tem como saída uma matriz (7,7,192). Após o módulo Inception é aplicada uma camada de agrupamento médio global (GAP) que produz como resultado um vetor de tamanho 192.  Este vetor é o \textit{embedding} que representa as características espaciais do corte.
+
+\begin{table}[]
+\centering
+\caption{Parâmetros da rede CNN}
+\label{table:met_pesos_cnn}
+\begin{tabular}{lr}
+\hline
+Seção                          & \multicolumn{1}{l}{Parâmetros} \\ \hline
+Densenet-201 \textit{backbone} & 18.321.984                     \\
+Módulo Inception               & 508.224                        \\
+\textbf{Total}                 & \textbf{18.830.208}            \\ \hline
+\end{tabular}
+\end{table}
+
+A rede CNN utilizada na extração de características espaciais apresenta um total de 18.830.208 parâmetros. A Tabela \ref{table:met_pesos_cnn} apresenta o número de parâmetros de cada parte da rede. Enquanto a DenseNet-201 tem seus parâmetros aprendidos com base na classificação de imagens naturais, os parâmetros das camadas contidas no módulo Inception foram aprendidos com base no treinamento da rede CNN em um problema de classificação de COVID-19 versus não COVID-19, com base no conjunto de dados MOSMED-1110 \cite{morozov2020mosmeddata}, que contém imagens de tomografia de tórax com casos de pacientes com tecido pulmonar normal e pacientes com COVID-19.
+
+A escolha da estrutura da base convolucional, incluindo a quantidade de módulos Inception, foi realizada através de um processo de otimização de hiperparâmetros (HPO) descrito na Seção \ref{subsec:cap_metodo_treinamento_cnn}.
+
+
+\subsection{Extração das Características Sequenciais}\label{subsec:cap_metodo_carac_sequenciais}
+
+A etapa de extração das características sequenciais é realizada com base em uma rede especializada para aprendizagem com base em dados sequenciais. Nesta etapa são consideradas duas alternativas de redes neurais, a Long Short Term Memory (LSTM) \cite{hochreiter1997long, zaremba2014recurrent, graves2005framewise} ou a Transformer \cite{vaswani2017attention}.
+
+A rede neural recorrente do tipo Long Short Term Memory (LSTM) \cite{hochreiter1997long, zaremba2014recurrent, graves2005framewise} é uma evolução da rede neural recorrente original, ou apenas Recurrent Neural Network (RNN) \cite{Rumelhart1986}. Diferente das redes neurais artificiais comuns, em que os dados de entrada da rede são independentes uns dos outros, nas LSTMs é utilizada a relação sequencial existente entre os dados de entrada, armazenando esta informação em uma memória interna dos neurônios para ajudar na predição da rede. 
+
+Os Transformers \cite{vaswani2017attention} são redes multicamadas formadas pelo empilhamento de blocos transformers uns sobre os outros. Os blocos transformers são caracterizados por um mecanismo de auto-atenção multi-cabeças, uma rede perceptron multicamadas posicional, módulos de normalização de camada \cite{ba2016layer} e conectores residuais.
+
+Os exames de tomografia têm uma natureza sequencial, pois cada corte do exame é uma imagem bidimensional, capturada em sequência a partir da movimentação da mesa do tomógrafo em relação ao pórtico (\textit{gantry}). O método proposto tem como objetivo aproveitar esta particularidade deste tipo de exame para obter um melhor resultado na classificação dos exames de tomografia combinando a extração de características espaciais realizada pela rede CNN com o treinamento de uma rede LSTM ou uma rede Transformer, que são capazes de aprender características sequenciais, para classificar os exames de tomografia de tórax de acordo com a patologia.
+
+A etapa do método que é responsável pela extração de características temporais utiliza uma rede neural LSTM ou uma rede Transformer, cuja entrada é uma sequência de 10 vetores, cada um com 192 dimensões. Cada vetor corresponde a um \textit{embedding} obtido na etapa anterior de extração de características espaciais. A rede LSTM usada para extração das características sequencias utiliza apenas uma camada com 256 neurônios. A rede Transformer utilizada alternativamente a LSTM será definida posteriormente ao longo do trabalho de pesquisa da tese.
+
+A Figura \ref{fig:met_rede_cnn_lstm} representa a rede utilizada combinando uma CNN e uma LSTM que executa as etapas: (2) Extração de Características Espaciais, (3) Extração de Características Sequenciais e (4) Classificação. Convém lembrar que a primeira etapa do método não representada na figura, corresponde ao pré-processamento das imagens que é realizado com o objetivo de preparar as imagens para serem utilizadas como entrada na rede neural. Com a entrada da camada LSTM na rede, o número de parâmetros da rede aumenta para mais de 19 milhões conforme apresentado na Tabela \ref{table:met_pesos_cnn_lstm}.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/met_cnn_lstm.pdf}
+\caption{Rede combinada com CNN e LSTM.}
+\label{fig:met_rede_cnn_lstm}
+\end{figure}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Parâmetros da rede CNN e LSTM}
+\label{table:met_pesos_cnn_lstm}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Seção                                               & Parâmetros          \\ \midrule
+Densenet-201                                        & 18.321.984          \\
+Módulo Inception \textit{backbone}                  & 508.224             \\
+LSTM                                                & 459.776             \\
+\textbf{Total}                                      & \textbf{19.289.984} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Classificação do Exame}\label{subsec:cap_metodo_classificacao}
+
+A classificação corresponde a última etapa do método para classificar o exame de tomografia como COVID-19 ou não COVID-19. Para realizar a classificação são adicionadas duas camadas densas, completamente conectadas, como indicado no item (4) da Figura \ref{fig:met_rede_cnn_lstm}. Na alternativa em que é usada a LSTM para extrair características sequenciais, a primeira camada densa recebe como entrada a saída da LSTM, um vetor unidimensional de 256 posições, e tem 256 neurônios. A sua saída então é utilizada pela última camada da rede, que tem apenas um neurônio e faz a classificação utilizando uma função de ativação sigmoide. 
+
+O resultado da última camada é um número real entre 0 e 1 e é interpretado como a probabilidade do exame apresentar sintomas de COVID-19. A Tabela \ref{table:met_pesos_rede_completa_lstm} apresenta o número total de parâmetros da rede combinada utilizada pelo método proposto para classificação da COVID-19 em exames de tomografia.
+
+O número de parâmetros da rede representa a quantidade de parâmetros que ela aprendeu durante o seu treinamento. Após o treinamento, a rede utiliza os parâmetros aprendidos para realizar a inferência indicando se o caso é COVID-19 ou não. Como mencionado anteriormente, este resultado é obtido na etapa de classificação do método. No caso da rede definida pelo método proposto, como pode ser observado na Tabela \ref{table:met_pesos_rede_completa_lstm}, a ordem de grandeza do total de parâmetros é determinada primariamente pela escolha da arquitetura do \textit{backbone}, que é baseado na DenseNet-201. O \textit{backbone} é pre-treinado no conjunto de dados da Imagenet e tem como função a extração de características espaciais de baixo nível, o seu grande número de parâmetros não impacta significativamente o tempo de treinamento da rede, pois os seus 18.321.984 parâmetros são carregados e congelados durante o treinamento. Na Seção \ref{sec:cap_metodo_treinamento_redes} deste texto será explicado em mais detalhes como foi realizado o treinamento para criar e testar a rede definida pelo método proposto.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Parâmetros da rede combinada CNN e LSTM}
+\label{table:met_pesos_rede_completa_lstm}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Seção                                               & Parâmetros          \\ \midrule
+Densenet-201                                        & 18.321.984          \\
+Módulo Inception \textit{backbone}                  & 508.224             \\
+LSTM                                                & 459.776             \\
+Primeira Camada Densa                               & 65.792              \\
+Segunda Camada Densa                                & 257                 \\
+\textbf{Total}                                      & \textbf{19.356.033} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\section{Descrição do Conjunto de Dados}\label{sec:cap_metodo_descricao_dataset}
+
+Para treinamento e testes da rede neural desenvolvida com o método, foi utilizado um conjunto de dados chamado Mosmed-1110 \cite{morozov2020mosmeddata}. Este conjunto de dados é composto por 1110 exames de tomografias computadorizadas de tórax de diferentes pacientes coletadas em unidades de saúde de Moscou, Rússia, de 1º de março de 2020 a 25 de abril de 2020, no período inicial da pandemia de infecção por coronavírus. 
+
+Os pacientes considerados no estudo tem uma idade mínima de 18 anos e máxima de 97, sendo a mediana de 47 anos. 42\% dos pacientes incluídos no estudo são do sexo masculino, 56\% do sexo feminino e 2\% com sexo não informado.
+
+A anotação do conjunto de dados foi realizado por radiologistas das unidades de saúde onde os exames foram realizados e em seguida especialistas do Centro de Diagnóstico e Telemedicina (CDT) da Rússia conduziram uma segunda leitura independente para confirmar as anotações. Dos 1110 exames, 50 tomografias foram anotadas com máscaras binárias representando regiões de interesse (opacidade em vidro fosco e consolidação) para uso no desenvolvimento de métodos de apoio ao diagnóstico baseados na segmentação das áreas lesionadas pela COVID-19.
+
+Os exames do Mosmed-1110 são distribuídos em cinco classes, de acordo com o comprometimento da área pulmonar. A primeira classe CT0, com 254 exames, contém apenas casos que apresentam tecido pulmonar normal sem sinais de pneumonia viral. As outras quatro classes CT1 a CT4, totalizam 856 exames, com casos de COVID-19 com diferentes graus de comprometimento do volume dos pulmões por lesões da COVID-19, conforme representado na Tabela \ref{table:met_composicao_mosmed1110}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Quantidade de exames por classe no Mosmed-1110}
+\label{table:met_composicao_mosmed1110}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\begin{tabular}[c]{@{}l@{}}CT0\\ sem sintomas \\ COVID-19\\ nas imagens\end{tabular} & \begin{tabular}[c]{@{}l@{}}CT1\\ volume afetado\\ menor que 25\%\end{tabular} & \begin{tabular}[c]{@{}l@{}}CT2\\ volume afetado\\ entre 25\% e 50\%\end{tabular} & \begin{tabular}[c]{@{}l@{}}CT3\\ volume afetado\\ entre 50\% e 75\%\end{tabular} & \begin{tabular}[c]{@{}l@{}}CT4\\ volume afetado\\ maior que 75\%\end{tabular} \\ \midrule
+254 & 
+684 & 
+125 & 
+45 & 
+2 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+O objetivo da rede neural treinada pelo método proposto é detectar a COVID-19 a partir de um exame de imagem de tomografia de tórax, portanto cada exame do Mosmed-1110 foi rotulado como COVID-19 ou não COVID-19 da seguinte forma: os exames categorizados como CT0 receberam o rótulo Não COVID-19 enquanto que os exames CT1, CT2, CT3 e CT4 foram rotulados como COVID-19.
+
+
+
+
+\section{Treinamento das Redes}\label{sec:cap_metodo_treinamento_redes}
+
+Para a implementação do método descrito na Seção \ref{sec:cap_metodo_visao_geral}, baseado em uma rede neural combinando camadas CNN, LSTMs, módulos transformers e camadas densas, foi necessário definir os componentes da rede neural proposta, seus hiperparâmetros, executar seu treinamento a partir de um conjunto de dados e realizar experimentos para analisar o seu desempenho.
+
+Nesta seção será descrito como foi realizado o procedimento de treinamento da rede, e os recursos de software e hardware utilizados para realizar os experimentos. O objetivo é que os experimentos possam ser replicados e o modelo utilizado de base para outros trabalhos. Lembrando que a alternativa utilizando a rede Transformer utilizada alternativamente a LSTM será definida ao longo do trabalho de pesquisa da tese e descrita posteriormente.
+
+O treinamento da rede neural utilizada foi realizada em duas etapas, na primeira delas o objetivo foi construir uma rede CNN para classificação da COVID-19 baseado no conjunto de dados de treinamento. Na segunda etapa, o objetivo foi construir a rede neural combinada, cujo resultado está apresentado na Figura \ref{fig:met_rede_cnn_lstm}. 
+
+Na segunda etapa, a rede obtida na primeira etapa foi usada como base para a extração de características espaciais. Em ambas etapas foi utilizada a técnica Hyperband \cite{Li2017} para obter valores otimizados para os hiperparâmetros da rede.
+
+É importante destacar que o mesmo preprocessamento realizado na utilização da rede neural combinada, conforme descrito na Seção \ref{subsec:cap_metodo_preprocessamento} é o mesmo realizado nas duas etapas de treinamento.
+
+Adicionalmente, como medida para reduzir o sobreajuste (\textit{overfitting}) no treinamento da rede neural, foi aplicada nas imagens de entrada uma técnica simples de aumento de dados, o espelhamento horizontal e a rotação com um angulo de até ${\pm}$72$^{\circ}$. As duas técnicas de aumento de dados foram aplicadas de forma aleatória nas imagens, antes delas serem utilizadas como entrada no treinamento da rede.
+
+Antes das duas etapas de treinamento, os 1110 exames do conjunto de dados MOSMED-1110 foram particionados em dois subconjuntos,na proporção de 80\% e 20\%, o primeiro com a finalidade de ser utilizado para o treinamento das redes neurais e o segundo para validação das mesmas.
+
+Serão descritos mais adiante nesta seção com um pouco mais de detalhes cada uma dessas etapas.
+
+\subsection{Treinamento e Otimização da Rede CNN}\label{subsec:cap_metodo_treinamento_cnn}
+
+Na primeira etapa foram selecionados seis hiperparâmetros, quatro deles relacionados ao tipo da rede CNN e dois ao processo de treinamento da rede. Os quatro primeiros são o tipo da rede \textit{backbone}, o número de módulos \textit{inception}, o número de camadas densas intermediárias utilizadas ao final da rede para a classificação e o número de unidades presentes nessas camadas. Os dois hiperparâmetros voltados para o treinamento são a taxa de aprendizagem ou \textit{learning rate}, e o peso atribuído a cada uma das classes no cálculo da função de custo. Para cada um dos hiperparâmetros foram selecionados previamente três opções de valores a serem escolhidos pelo \textit{Hyperband}, exceto pelo hiperparâmetro tipo da rede \textit{backbone} que teve oito opções de valores, conforme pode ser visto na Tabela \ref{table:met_hiperparam_cnn}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Hiperparâmetros para a rede CNN}
+\label{table:met_hiperparam_cnn}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hiperparâmetro                        & Valores                                                                                                                                        \\ \midrule
+Tipo de rede CNN                      & \begin{tabular}[c]{@{}l@{}}InceptionV4; Xception; ResNet152V2;\\ DenseNet201; VGG16; NASNetLarge;\\ EfficientNetB7; MobileNetV2\end{tabular} \\
+Número de módulos \textit{Inception}           & 1; 3; 5                                                                                                                                        \\
+Núm. de camadas densas intermediárias & 1; 3; 5                                                                                                                                        \\
+Número de unidades nas camadas densas & 128; 256; 512                                                                                                                                  \\
+Taxa de aprendizagem                  & 0,1; 0,001; 0,00001                                                                                                                            \\
+Peso da classe minoritária na função de perda   & 0,5; 0,7; 0,9                                                                                                                                  \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A Figura \ref{fig:hpo_cnn_architecture} ilustra os quatro hiperparâmetros relacionados a rede neural convolucional que foram escolhidos o processo de HPO com o \textit{Hyperband}.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/hpo_cnn_architecture.pdf}
+\caption{Hiperparâmetros da rede CNN.}
+\label{fig:hpo_cnn_architecture}
+\end{figure}
+
+Como descrito no Seção \ref{subsec:cap_metodo_carac_espaciais}, o objetivo do \textit{backbone} da rede CNN é extrair as características espaciais básicas das imagens, para esta finalidade foi utilizada uma rede CNN pre-treinada com base no conjunto de dados Imagenet. O tipo desta rede é um dos elementos considerados pelo processo de otimização de hiperparâmetros. Os oito tipos de rede convolucionais foram selecionadas a partir das redes pre-treinadas com base no conjunto de dados Imagenet disponíveis no framework Keras, de forma que não fosse necessário o esforço e tempo para treinar uma rede grande como estas a partir do zero.
+
+As camadas densas da rede neural convolucional definidas na primeira etapa do treinamento têm como finalidade ajudar no treinamento da rede neural convolucional com objetivo de classificar a imagem como COVID-19 ou não, porém na segunda etapa do treinamento e otimização, a ser descrita mais adiante nesta sessão, essas camadas densas da rede neural convolucional são descartadas pois a rede convolucional terá apenas a função de extração de características espaciais e novas camadas densas serão adicionadas ao final da rede com intuito de ajudar na classificação na rede combinada, conforme descrito na Seção \ref{subsec:cap_metodo_carac_sequenciais}.
+
+Assim como na definição do tipo da rede, como por exemplo Densenet-201 ou InceptionV4, na configuração do seu treinamento também é necessário definir hiperparâmetros, como o número de épocas, o tamanho do lote (\textit{batch size}), a taxa de aprendizagem, a função de perda e o algoritmo de otimização utilizado pelo gradiente descendente no ajuste dos parâmetros da rede. Dois hiperparâmetros relacionados ao treinamento da rede para a otimização de hiperparâmetros são a taxa de aprendizagem utilizado pelo gradiente descendente na otimização dos parâmetros (pesos e vieses) da rede e o peso de cada classe na função de perda. 
+
+Os outros hiperparâmetros para o treinamento da rede foram pre-definidos e não entraram no processo de HPO. O algoritmo escolhido para otimizar os parâmetros da rede durante o treinamento é o Adam \cite{kingma2014adam}, um método de gradiente descendente que se baseia na estimativa adaptativa de momentos de primeira e segunda ordem. Para o tamanho do lote (\textit{batch size}) foi escolhido 32. 
+
+% \todo[inline]{comentar essas configuracoes:tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=10, verbose=1, mode='max') e tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', patience=5, factor=0.5, verbose=1)}
+
+Para a função de perda, foi utilizada a entropia cruzada, também conhecida como \textit{log loss}, com pesos para compensar o desbalanceamento dos dados no treinamento \cite{rezaei2020addressing}, uma vez que o conjunto de dados apresenta mais casos com COVID-19 que casos não COVID-19. O valor selecionado representa o peso que é atribuído a classe minoritária, no caso a classe não COVID-19.
+
+No intuito de executar a otimização de hiperparâmetros, foi utilizada o software Optuna \cite{akiba2019optuna}, uma ferramenta \cite{akiba2019optuna}, disponível como biblioteca para a linguagem Python. O Optuna é um software de código aberto que permite facilmente a construção de experimentos organizados, além de fornecer diversos algoritmos para amostrador (\textit{sampler}) e podador (\textit{pruner}). É possível executar os experimentos de forma distribuída, e os resultados são visualizados em uma interface web (dashboard). Nesta tese, para o amostrador, foi usado o algoritmo Tree-Structured Parzen Estimator (TPE) \cite{bergstra2013making} e para o podador, foi adotado o Hyperband \cite{Li2017}. 
+
+O software Optuna foi configurado para realizar 200 tentativas ou \textit{trials}, como é chamada cada vez que a ferramenta executa o treinamento e teste da rede CNN com uma combinação de valores específica para os hiperparâmetros selecionados e verifica o resultado de uma função objetivo. Mais especificamente, a cada tentativa, a ferramenta sugere um valor para cada um dos hiperparâmetros selecionados para otimização, realiza o treinamento da rede e armazena o resultado da função objetivo a ser maximizada no processo de otimização. Neste trabalho a função objetivo utilizada para a otimização da rede retorna o F1 Score obtido na validação interna da rede gerada.
+
+Um detalhe importante a destacar é que a rede neural convolucional utilizada é bidimensional, portanto cada entrada no treinamento e teste da rede corresponde a uma imagem 2D que representa um corte selecionado da área central do exame e o rótulo de cada corte é o mesmo atribuído ao exame do qual ele foi selecionado. Esta particularidade da rede reflete também na saída, baseada na função sigmoide, que apresenta um valor entre 0 e 1, que pode ser interpretada como a probabilidade do corte corresponder a um caso de COVID-19.
+
+Para a classificação binária do exame como um todo, foi utilizada uma votação considerando o resultado de saída da rede para cada um dos cortes selecionados do exame. Esta votação foi realizada da seguinte forma: quando o resultado da rede para um corte é maior que 0,5 então contabiliza-se um voto para a classe COVID-19, caso contrario é contabilizado um voto para a classe não COVID-19, caso o número de votos da classe COVID-19 seja maior que o número de votos da classe não COVID-19 então o exame é classificado como COVID-19.
+
+Ao final do processo de otimização, a melhor combinação dos hiperparâmetros para a rede CNN escolhida está resumida na Tabela \ref{table:met_best_hpo_cnn}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Melhores hiperparâmetros selecionados para a rede CNN}
+\label{table:met_best_hpo_cnn}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hiperparâmetro                        & Valores     \\ \midrule
+Tipo de rede CNN                      & DenseNet201 \\
+Número de módulos Inception           & 1           \\
+Núm. de camadas densas intermediárias & 2           \\
+Número de unidades nas camadas densas & 128         \\
+Taxa de aprendizagem                  & 0,00001     \\
+Peso da classe minoritária na função de perda   & 0,5         \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% Durante a otimização dos hiperparâmetros da rede CNN, além do F1 Score utilizado como função objetivo, também foram verificadas outras medidas para análise do desempenho da rede: acurácia, precisão, sensibilidade (\textit{recall}) e área sob a curva ROC (AUC). A Tabela \ref{table:met_best_hpo_cnn_metrics} apresenta os valores obtidos em cada uma dessas medidas .
+
+% % Please add the following required packages to your document preamble:
+% % \usepackage{booktabs}
+% \begin{table}[]
+% \centering
+% \caption{Resultado obtido com os melhores hiperparâmetros da Rede CNN}
+% \label{table:met_best_hpo_cnn_metrics}
+% \begin{tabular}{@{}lllll@{}}
+% \toprule
+% acurácia & precisão & sensibilidade & F1 Score & AUC   \\ \midrule
+% 0,842    & 0,844    & 0,977         & 0,906    & 0,678 \\ \bottomrule
+% \end{tabular}
+% \end{table}
+
+Durante a otimização dos hiperparâmetros da rede CNN, a medida F1 Score utilizado como função objetivo. A otimização da rede CNN realizada no software Optuna foi realizada com 200 tentativas ou \textit{trials} e em cada uma delas foi realizado o preprocessamento dos dados, aumento de dados, treinamento e validação da rede. O treinamento da rede CNN foi baseado em um tamanho de lote de 32 amostras e 30 épocas, ao final do treinamento de cada tentativa foi realizada a validação da rede CNN com base nos parâmetros da rede que obtiveram os melhores resultados no treinamento. Esta validação é realizada utilizando a partição de validação, um subconjunto correspondente a 20\% do conjunto de dados Mosmed-1110. O tempo total para treinamento e otimização da rede CNN no ambiente descrito na Subseção \ref{subsec:cap_metodo_arquitetura} foi de $\approx 246$ horas.
+
+\subsection{Treinamento e Otimização da Rede Combinada utilizando LSTM}\label{subsec:cap_metodo_treinamento_combinada_lstm}
+
+Na segunda etapa do treinamento e otimização da rede, na estimativa com uso combinado da CNN e LSTM, foram selecionados sete hiperparâmetros, quatro deles relacionados aos componentes da rede e um ao seu processo de treinamento. Os quatro primeiros são o número de camadas da LSTM, o número de unidades das camadas LSTM, o número de camadas densas intermediárias utilizadas ao final da rede para a classificação e o número de unidades presentes nessas camadas. Os três hiperparâmetros relacionados ao treinamento são a taxa de aprendizagem ou \textit{learning rate}, o peso atribuído a cada uma das classes no cálculo da função de custo e por fim um hiperparâmetro que indica se as camadas convolucionais da rede CNN existentes após o \textit{backbone} da rede devem ser retreinadas ou não. Para cada elemento do conjunto de hiperparâmetros foram selecionados previamente três opções de valores a serem escolhidos pelo \textit{Hyperband}, exceto pelo elemento relacionado ao retreinamento da rede CNN, que apresenta apenas as opções Verdadeiro e Falso, conforme apresentado na Tabela \ref{table:met_hiperparam_rnn}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Hiperparâmetros para a rede combinada (CNN e LSTM)}
+\label{table:met_hiperparam_rnn}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hiperparâmetro                        & Valores             \\ \midrule
+Número de camadas LSTM                & 1; 2; 3             \\
+Número de unidades nas camadas LSTM   & 128; 256; 512       \\
+Núm. de camadas densas intermediárias & 1; 2; 3             \\
+Número de unidades nas camadas densas & 128; 256; 512       \\
+Retreina camadas CNN?                 & Verdadeiro; Falso   \\
+Taxa de aprendizagem                  & 0,1; 0,001; 0,00001 \\
+Peso da classe minoritária na função de perda   & 0,5; 0,7; 0,9       \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A Figura \ref{fig:hpo_rnn_architecture} ilustra os quatro hiperparâmetros relacionados aos componentes da rede neural combinada que foram escolhidos para serem considerados no processo de otimização de hiperparâmetros com o \textit{Hyperband}.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/hpo_rnn_architecture.pdf}
+\caption{Hiperparâmetros da rede combinada (CNN e LSTM).}
+\label{fig:hpo_rnn_architecture}
+\end{figure}
+
+Ao final do processo de otimização, a melhor combinação dos hiperparâmetros para a rede combinada escolhida está resumida na Tabela \ref{table:met_best_hpo_rnn}.
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Melhores hiperparâmetros para a Rede Combinada (CNN e LSTM)}
+\label{table:met_best_hpo_rnn}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Hiperparâmetro                        & Valores    \\ \midrule
+Número de camadas LSTM                & 1          \\
+Número de unidades nas camadas LSTM   & 256        \\
+Núm. de camadas densas intermediárias & 1          \\
+Número de unidades nas camadas densas & 256        \\
+Retreina camadas CNN?                 & Verdadeiro \\
+Taxa de aprendizagem                  & 0,00001    \\
+Peso da classe minoritária na função de perda   & 0,7        \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% Durante a otimização dos hiperparâmetros da rede Combinada, além do F1 Score utilizada como função objetivo, também foram verificadas outras métricas para análise do desempenho da rede: acurácia, precisão, sensibilidade (\textit{recall}) e área sob a curva ROC (AUC). A Tabela \ref{table:met_best_hpo_rnn_metrics} apresenta o resultado obtido com os hiperparâmetros selecionados.
+
+% \begin{table}[]
+% \centering
+% \caption{Resultados com os melhores hiperparâmetros da Rede Combinada (CNN e LSTM)}
+% \label{table:met_best_hpo_rnn_metrics}
+% \begin{tabular}{lllll}
+% \hline
+% acurácia & precisão & sensibilidade & F1 Score & AUC   \\ \hline
+% 0,896    & 0,907    & 0,965         & 0,935    & 0,912 \\ \hline
+% \end{tabular}
+% \end{table}
+
+Durante a otimização dos hiperparâmetros da rede combinada, a medida F1 Score foi utilizada como função objetivo. A otimização da rede combinada realizada pelo Optuna foi configurado para realizar 322 tentativas ou \textit{trials} e em cada uma delas foi realizado o preprocessamento dos dados, aumento de dados, treinamento e validação da rede. O treinamento da rede combinada foi baseado em um tamanho de lote de 32 amostras e 30 épocas, ao final do treinamento de cada tentativa foi realizada a validação da rede CNN com base nos parâmetros da rede que obtiveram os melhores resultados no treinamento. Esta validação é realizada utilizando a partição de validação, um subconjunto correspondente a 20\% do conjunto de dados Mosmed-1110. O tempo total para treinamento e otimização da rede combinada no ambiente descrito na Subseção \ref{subsec:cap_metodo_arquitetura} foi de $\approx 291$ horas.
+
+\subsection{Arquitetura dos Experimentos}\label{subsec:cap_metodo_arquitetura}
+
+Para treinamento das rede neurais foi utilizado uma GPU P100-SXM2 do servidor Nvidia DGX-1, do Instituto de Computação da Universidade Federal Fluminense. A DGX-1 apresenta oito GPUs Tesla P-100 com 16 GB de memória física para cada GPU, sendo apenas uma delas utilizadas de forma dedicada durante os experimentos. Para realização dos experimentos, além do software Optuna utilizado para a otimização de hiperparâmetros, foram utilizadas as bibliotecas Keras e Tensorflow \cite{abadi2016tensorflow} da linguagem Python para o treinamento e validação das redes. O conjunto de dados Mosmed-1110 e também os modelos no formato Tensorflow gerados durante o treinamento foram armazenados no sistema de arquivos da DGX. A Figura \ref{fig:met_arq_experimentos} ilustra os componentes de hardware e software utilizados nos experimentos.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=1.0\linewidth]{capitulos/figuras/met_arq_experimentos.pdf}
+\caption{Arquitetura dos experimentos.}
+\label{fig:met_arq_experimentos}
+\end{figure}
+
+\subsection{Artefatos Produzidos}\label{subsec:cap_metodo_codigo}
+
+Com a finalidade de permitir a reprodutibilidade dos experimentos realizados estão disponíveis publicamente o código-fonte utilizado para treinamento e testes, assim como os modelos do Tensorflow gerados durante os experimentos. A Tabela \ref{table:met_artefatos_gerados} contém os endereços de cada um dos itens necessários para reproduzir os experimentos, incluindo o endereço do conjunto de dados Mosmed original utilizado para o treinamento e teste das redes. As instruções passo-a-passo para executar o experimentos estão disponíveis no mesmo repositório onde o código-fonte foi disponibilizado.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{Artefatos para reprodução dos experimentos}
+\label{table:met_artefatos_gerados}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Item         & Repositório  & Endereço                                         \\ \midrule
+Código-fonte & GitHub       & https://github.com/placerda/covid-classification \\
+Modelos      & Google Drive & https://bit.ly/paulo-thesis-models               \\
+Dados        & Mosmed-1110  & https://mosmed.ai/en/                            \\ \bottomrule
+\end{tabular}
+\end{table}
+
+

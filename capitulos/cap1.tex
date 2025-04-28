@@ -1,0 +1,63 @@
+\chapter{Introdução} \label{cap:cap_introducao}
+
+Em março de 2020 foi declarada a pandemia global da SARS-Cov2 pela Organização Mundial da Saúde~\cite{world2020director} e desde então um grande número de casos e mortes confirmaram o seu impacto em escala mundial \cite{WorldHealthOrganization2020CoronavirusReports}. O teste RT-PCR, do inglês \textit{Reverse-Transcription Polymerase Chain Reaction}, é considerado o padrão ouro para o diagnóstico da COVID-19 \cite{oliveira2020sars}.
+
+No entanto estudos mostram que a tomografia computadorizada também tem papel importante no manejo de casos suspeitos de COVID-19 \cite{he2020diagnostic}, apresentando alta especificidade e valor preditivo positivo para o diagnóstico de COVID-19 \cite{santos2020initial}. Este exame tem um papel importante principalmente nos casos que apresentaram resultado negativo inicial no RT-PCR \cite{fang2020sensitivity}, sobretudo levando em consideração os pacientes que estão fora da janela ideal de coleta de amostras \cite{fonseca2021tomografia}. Enquanto que o RT-PCR tem desempenho modesto na medida de sensibilidade (53-88\%) \cite{kovacs2020sensitivity}. A sensibilidade e precisão de nível humano de TC para diagnóstico da COVID-19 são 97\% e 72\%, respectivamente \cite{caruso2020chest}. 
+
+Para minimizar o risco de resultados de falso-negativos do teste RT-PCR, a TC de tórax pode ser aplicada em pacientes com suspeita clínica com resultado inicial negativo \cite{he2020diagnostic}. Vale notar que comparada à radiografia torácica, outro exame de imagem também utilizado para ajudar na detecção da doença, a tomografia computadorizada de tórax é mais sensível na detecção da COVID-19, bem como no monitoramento da progressão da doença \cite{wong2020frequency}.
+
+Imagens médicas são elementos importantes para o diagnóstico de doenças. O diagnóstico assistido por computador, ou \textit{Computer Aided Diagnostics} (CAD), evoluiu bastante nos últimos anos, juntamente com a capacidade de processamento dos computadores, e o surgimento das técnicas de aprendizado profundo \cite{goodfellow2016deep}.  Atualmente a utilização de CNNs aplicada ao diagnóstico em cenários específicos já alcança desempenhos equiparáveis a especialistas em radiologia \cite{gulshan2016development, esteva2017dermatologist}.
+
+Dado a magnitude dos efeitos da pandemia na sociedade, a pesquisa na área de diagnóstico da COVID-19 auxiliado por computador é de grande importância para desenvolvimento de novos métodos para diagnóstico que possam ser adotados pelos sistemas de saúde de todo o mundo na detecção e tratamento da doença. Embora já existam estudos com foco no uso de aprendizado profundo para apoiar o diagnóstico de COVID-19 utilizando tomografias, há espaço para melhorar o desempenho das técnicas publicadas até o momento da escrita deste texto, como por exemplo na sensibilidade da detecção da doença a fim de reduzir ainda mais o número de resultados falso-negativos e, consequentemente, aumentar a chance de detecção e tratamento bem-sucedidos da COVID-19.
+
+\section{Hipóteses de Pesquisa}\label{sec:obj_perg_hipoteses}
+
+Este trabalho analisa a utilização de redes neurais convolucionais \cite{lecun1990handwritten} combinadas com redes neurais recorrentes \cite{Rumelhart1986} ou \textit{transformers} \cite{vaswani2017attention} na detecção da COVID-19 em exames de tomografia computadorizada de tórax. A combinação de redes CNN e LSTM já foi realizada com sucesso em exames de ultrassom \cite{barros2021pulmonary}. O objetivo é verificar que o desempenho destas redes quando combinadas apresenta um desempenho igual ou superior ao especialista humano ou outras técnicas que aplicam primariamente redes neurais convolucionais para a detecção da COVID-19 em relação a sensibilidade.
+
+Assim, a hipótese dessa pesquisa pode ser apresentada da seguinte forma: 
+
+"A aplicação de redes neurais convolucionais combinadas com redes neurais recorrentes ou transformers constituem uma forma mais eficaz na detecção da COVID-19 em tomografias computadorizadas de tórax quando comparadas com o desempenho humano e com a utilização apenas de redes neurais do tipo convolucionais."
+
+\section{Objetivos}\label{sec:obj_trabalho}
+
+O objetivo geral desta tese é propor e avaliar um novo método para detecção da COVID-19 utilizando aprendizado profundo, através da extração de características espaciais e sequenciais de estudos de tomografia de tórax. 
+
+Para alcançar o objetivo geral, os seguintes objetivos específicos são estabelecidos: 
+\begin{itemize}
+  
+  \item Desenvolver técnicas de preparação de imagens com o objetivo de evidenciar as informações relevantes para o aprendizado das redes neurais relacionado a COVID-19.
+  
+  \item Propor técnicas de preprocessamento das imagens para aumento dos dados de forma a melhorar a capacidade de generalização das redes e reduzir o viés por conta do conjunto de dados utilizado.
+  
+  \item Propor técnica aplicando redes neurais convolucionais combinadas com redes neurais recorrentes na tarefa de classificar exames de tomografia computadorizada de tórax como COVID-19 ou não COVID-19.
+  
+  \item Propor técnica aplicando redes neurais convolucionais combinadas com redes neurais \textit{transformers} na tarefa de classificar exames de tomografia computadorizada de tórax como COVID-19 ou não COVID-19.  
+  
+  \item Aplicar técnica de otimização do conjunto dos hiperparâmetros a serem empregados na definição da arquitetura e treinamento das redes neurais utilizadas nesta pesquisa.
+  
+%   \item Propor técnica de detecção de lesões ocasionadas pela COVID-19 com base em TC, para uso combinado com o classificador da doença, fornecendo mais informações para apoiar o diagnóstico realizado pelo médico.
+  
+  \item Avaliar o método proposto através de experimentos usando uma base de imagens públicas de tomografias computadorizadas, a partir de medidas de desempenho usualmente utilizadas para avaliar classificadores baseados em aprendizado profundo.
+  
+  \item Comparar o desempenho do método proposto com outros métodos publicados na literatura.
+  
+\end{itemize}
+
+\section{Estrutura do Trabalho}\label{sec:cap_introducao_est_trabalho}
+
+Esta proposta de tese está organizada da seguinte forma: No  Capítulo \ref{cap:cap_fundamentos}  são apresentados conceitos que são fundamentais para aplicação da técnica proposta, no Capítulo \ref{cap:cap_trabalhos} são comentados alguns métodos publicados recentemente relacionados a aplicação de aprendizado profundo para diagnóstico da COVID-19, no Capítulo \ref{cap:cap_metodo} é descrito em detalhes o método proposto por este trabalho, no Capítulo \ref{cap:cap_resultados} os resultados preliminares dos experimentos são apresentados e discutidos. Finalmente, o Capítulo \ref{cap:cap_planejamento} apresenta o planejamento, as limitações do estudo até o momento da qualificação, e as contribuições esperadas com a tese de doutorado.
+
+% \section{Notação Utilizada}\label{sec:cap_introducao_notacao}
+
+% Durante o texto são utilizadas letras, símbolos para representar elementos matemáticos como variáveis e equações. Como convenção as variáveis são representadas com letras minusculas e em itálico e para algumas delas são utilizadas letras do alfabeto grego, como por exemplo na equação \ref{eq:z_score_exemplo} que descreve o cálculo do \textit{z-score} para normalização dos \textit{pixels} de uma imagem, neste equação a letra $z$ representa a nova intensidade do \textit{pixel}, $x$ corresponde ao seu valor original, e $\mu$ e $\sigma$ equivalem respectivamente a média e desvio padrão dos \textit{pixels} da imagem.
+
+% \begin{equation} \label{eq:z_score_exemplo}
+% z = \frac{x - \mu }{\sigma}
+% \end{equation}
+
+% Assim como as variáveis, os vetores utilizados na descrição do funcionamento das redes neurais também são representados como letras minúsculas em itálico, já as matrizes são representadas por letras maiúsculas em itálico. Elementos de um vetor são representados com a notação $x_i$ que no caso corresponde ao \textit{i}-ésimo elemento do vetor \textit{x}. 
+
+% Ainda relacionado a representação das redes neurais, componentes de uma determinada camada da rede neural são representados com sobrescrito entre colchetes, por exemplo, de acordo com essa notação a expressão $W^{[l]}$ pode ser usada para representar a matriz com os pesos da camada $l$ de uma rede neural.
+
+% Quando necessário representar os elementos de um conjunto de dados, é utilizada a notação $x^{(i)}$ para representar o vetor correspondente a \textit{i}-ésima amostra de um conjunto de dados X.
+
